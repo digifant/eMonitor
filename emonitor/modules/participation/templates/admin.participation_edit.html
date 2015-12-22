@@ -1,0 +1,68 @@
+{%  extends "admin.html" %}
+
+{%  block subnavigation %}
+    {{  subnavigation(current_mod.getAdminSubNavigation()) }}
+{%  endblock %}
+
+{% block content %}
+    <h2>{{ _('participation.header.edit') }}</h2>
+    
+       
+        {{ participation }}
+        
+    <form method="post" action="">
+        <p>
+            <label>{{ _('participation.datetime') }}:<br/>
+                <input type="text" name="edit_datetime" value="{{ participation.datetime }}" readonly="readonly" style="width:99%"/>
+            </label>
+        </p>
+        <p>
+            <label>{{ _('participation.person') }}:<br/>
+                <select name="edit_person" style="width:99%" required autofocus>
+                    {% for person in persons %}
+                    <option value="{{ person.id }}" {% if person.id==participation._person.id %}selected="selected"{% endif %}>{{ person.fullname }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </p>
+        <p>
+            <label>{{ _('participation.alarm') }}:<br/>
+                <select name="edit_alarm" style="width:99%" required autofocus>
+                    {% for alarm in alarms %}
+                    <option value="{{ alarm.id }}" {% if alarm.id==participation._alarm.id %}selected="selected"{% endif %}>{{ alarm._key }} / {{ alarm.timestamp }} </option>
+                    {% endfor %}
+                </select>
+            </label>
+        </p>        <p>
+            <label>{{ _('participation.dept') }}:<br/>
+                <select name="edit_department" style="width:99%" required>
+                    {% for department in departments %}
+                    <option value="{{ department.id }}" {% if department.id==participation._dept.id %}selected="selected"{% endif %}>{{ department.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </p>
+
+        <p>
+            <label>{{ _('participation.participation') }}:<br/>
+                <select name="edit_participation" style="width:99%">
+                    {% for pk in participationtypes.keys() %}
+                    <option value="{{ pk }}" {% if pk==participation.participation %}selected="selected"{% endif %}>{{ participationtypes[pk] }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            {{ participationtypes }}
+        </p>
+        <p>
+            <label>{{ _('participation.active') }}:<br/>
+                <input type="checkbox" name="edit_active" value="1" {% if participation.active==1 %}checked="checked"{% endif %}/>
+            </label>
+        </p>
+        <p>
+            <button type="submit" name="action" value="updateparticipation" class="save"><i class="fa fa-check"></i> {{ _('participation.save') }}</button>
+            <button type="button" class="cancel" onClick="history.go(-1);return true;"><i class="fa fa-times"></i> {{ _('participation.cancel') }}</button>
+        </p>
+        <input type="hidden" name="participation_id" value="{{ participation.id }}"/>
+        <input type="hidden" name="form_id" value="admin.participation.edit"/>
+    </form>
+{% endblock %}

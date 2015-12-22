@@ -1,0 +1,26 @@
+<style>
+    {%- if layout.monitor.orientation == 0 %} {# landscape mode #}
+    div#pyes, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:19%;}
+    {%- else %} {#  portrait mode #}
+    div#pyes, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:90%;}
+    {%- endif %}
+    div#pyes {background-color:green; color:black}
+    div#pno {background-color:red; color:black}
+    div#pmaybe {background-color:yellow; color:black}
+    div#punknown {background-color:grey; color:black}
+    div#alarm_participation{position:relative;padding-top:8px;}
+    div#alarm_p, {display:block;overflow:hidden;padding:5px 0; position:relative;}
+    div.label {color:#696969;font-size:12px;position:absolute;top:0;left:20px;}
+</style>
+{%- if alarm %}
+<div id="alarm_participation">
+    <div class="label">{{ _('participation') }}:</div>
+    <div id="alarm_p" style="padding:2px 20px;">
+            <div id="pyes">{{ alarm.yes }}</div>
+            <div id="pno">{{ alarm.no }}</div>
+            <div id="pmaybe">{{ alarm.maybe }}</div>
+            <!-- <div id="punknown">{{ alarm.unknown }}</div> -->
+    </div>
+
+</div>
+{%- endif %}

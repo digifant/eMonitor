@@ -27,6 +27,7 @@ from emonitor.modules.settings.department import Department
 from emonitor.modules.cars.car import Car
 from emonitor.extensions import babel, db, events, scheduler, signal
 
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
@@ -86,6 +87,12 @@ class Alarm(db.Model):
     zoom = property(alarmutils.get_zoom)
     position = property(alarmutils.get_position, alarmutils.set_position)
     marker = property(alarmutils.get_marker)
+    # bofh / added participation information
+    participation = property(alarmutils.getParticipation)
+    yes = property(alarmutils.getPYes)
+    no = property(alarmutils.getPNo)
+    maybe = property(alarmutils.getPMaybe)
+    unknown = property(alarmutils.getPUnknown)
 
     def __init__(self, timestamp, key, type, state):
         self.timestamp = timestamp

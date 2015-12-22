@@ -1,0 +1,69 @@
+{% extends "admin.html" %}
+
+{%  block subnavigation %}
+    {{  subnavigation(current_mod.getAdminSubNavigation()) }}
+{%  endblock %}
+
+{% block script %}
+    <script>
+        function questionDel(){
+            return confirm('{{ _('participation.delquestion') }}');
+        }
+
+        function checkAdd(){
+            return ($('#add_name').value!="");
+        }
+    </script>
+{% endblock %}
+
+
+
+{% block content %}
+    <h2>{{ _('participation.header.overview') }}</h2>
+    <p><small>{{ _('participation.info') }}</small></p>
+    <form method="post" action="" style="padding-bottom:20px;">
+        <div class="headrow">
+            <div style="margin-right:70px;margin-left:15px;">
+                <div class="headcell" style="width:25%;">{{ _('participation.participation') }}</div>
+                <div class="headcell" style="width:15%;">{{ _('participation.alarm') }}</div>
+                <div class="headcell" style="width:10%;">{{ _('participation.person') }}</div>
+                <div class="headcell" style="width:10%;">{{ _('participation.dept') }}</div>
+                <div class="headcell" style="width:10%;">{{ _('participation.datetime') }}</div>
+                <div class="headcell" style="width:25%;text-align:right;">{{ _('participation.active') }}</div>
+            </div>
+            <button class="add" type="submit" name="action" value="createparticipation" title="{{ _('participation.addtitle') }}"><i class="fa fa-plus fa-lg"></i></button>
+        </div>
+        
+        {% if participation|count==0 %}
+        <div class="rownoentry">
+            <p style="text-align:center">{{ _('participation.nodata') }}</p>
+        </div>
+        {% endif %}
+        <div id="sortable">
+            {% for p in participation %}
+            <div class="row">
+                <div style="margin-right:70px;margin-left:15px;">
+                    <div class="rowcell" style="width:25%;">{{ p.participation }}</div>
+                    <div class="rowcell" style="width:25%;">{{ p._alarm }}</div>
+                    <div class="rowcell" style="width:15%;">{{ p._person }}</div>
+                    <div class="rowcell" style="width:10%;">{{ p._dept }}</div>
+                    <div class="rowcell" style="width:10%;">{{ p.datetime }}</div>
+                    <div class="rowcell" style="width:10%;">{{ p.active }}</div>
+                </div>
+                <button type="submit" name="action" value="deleteparticipation_{{ p.id }}" title="{{ _('participation.deletetitle') }}" onclick="return questionDel()"><i class="fa fa-trash-o fa-lg"></i></button>
+                <button type="submit" name="action" value="editparticipation_{{ p.id }}" title="{{ _('participation.edittitle') }}"><i class="fa fa-pencil fa-lg"></i></button>
+                {% if participation.active==True %}
+                <div style="float:right;margin-top:4px;margin-right:20px;">
+                    <i class="fa fa-check" title="active"></i>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="headrow">
+            <small style="float:right;margin-right:50px">{{ _('participation.itemscount', count=participation|count) }}</small><br/>
+        </div>
+        <input type="hidden" name="form_id" value="admin.participation.overview"/>
+    </form>
+{% endblock %}

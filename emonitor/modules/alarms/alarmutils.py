@@ -18,7 +18,6 @@ from emonitor.modules.events.eventhandler import Eventhandler
 from emonitor.modules.streets.street import Street
 from emonitor.modules.settings.settings import Settings
 
-
 # helper methods for object attributes
 def get_street_proto(self, stype):  # deliver street object
     _t = {1: 'address', 2: 'address2'}
@@ -203,6 +202,24 @@ def set_position(self, position):
     else:
         self.set('zoom', 17)
 
+#bofh
+#quick'n dirty hack. get participation information
+def getPYes (self):
+    from emonitor.modules.participation import Participation
+    return Participation.yes(alarmid=self.id )
+def getPNo (self):
+    from emonitor.modules.participation import Participation
+    return Participation.no(alarmid=self.id )
+def getPMaybe (self):
+    from emonitor.modules.participation import Participation
+    return Participation.maybe(alarmid=self.id )
+def getPUnknown (self):
+    from emonitor.modules.participation import Participation
+    return Participation.unknown(alarmid=self.id )
+
+def getParticipation (self):
+    from emonitor.modules.participation import Participation
+    return Participation.getParticipation(alarmid=self.id )
 
 class AlarmFaxChecker:
     """
