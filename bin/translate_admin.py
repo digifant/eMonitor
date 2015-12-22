@@ -12,10 +12,11 @@ def translateAdminStrings(language_code):
     if sys.platform == 'win32':
         pybabel = 'pybabel'
     else:
-        pybabel = 'flask/bin/pybabel'
+        #pybabel = 'flask/bin/pybabel'
+        pybabel = 'pybabel'
 
-    os.system(pybabel + ' extract -F bin/babel.cfg -k gettext -o emonitor\\admin\\translations\\admin.pot emonitor\\admin')
-    os.system(pybabel + ' update -D admin -i emonitor\\admin\\translations\\admin.pot -d emonitor\\admin\\translations -l ' + language_code)
+    os.system(pybabel + ' extract -F bin/babel.cfg -k gettext -o emonitor/admin/translations/admin.pot emonitor/admin')
+    os.system(pybabel + ' update -D admin -i emonitor/admin/translations/admin.pot -d emonitor/admin/translations -l ' + language_code)
 
 
 if __name__ == '__main__':
