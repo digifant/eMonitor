@@ -22,7 +22,7 @@ def getAdminContent(self, **params):
 
     if request.method == 'POST':
         if request.form.get('action') == 'createperson':  # add person
-            params.update({'person': Person('', '', '', '', '', '', False, datetime.now(), '', int(module[1])), 'settings': Settings.get('persons.settings')})
+            params.update({'person': Person('', '', '', '', '', '', False, False, False, False, datetime.now(), '', '', int(module[1])), 'settings': Settings.get('persons.settings')})
             return render_template('admin.persons_edit.html', **params)
 
         elif request.form.get('action').startswith('editperson_'):  # edit person
@@ -33,7 +33,7 @@ def getAdminContent(self, **params):
             if request.form.get('person_id') != 'None':
                 person = Person.getPersons(id=request.form.get('person_id'))
             else:
-                person = Person('', '', '', '', '', '', False, datetime.now(), '', int(module[1]))
+                person = Person('', '', '', '', '', '', False, False, False, False, datetime.now(), '', '', int(module[1]))
                 db.session.add(person)
 
             person.firstname = request.form.get('firstname')
@@ -43,12 +43,16 @@ def getAdminContent(self, **params):
             person._dept = int(request.form.get('dept'))
             person.position = request.form.get('position')
             person.active = 'active' in request.form.keys()
+            person.asgt = 'asgt' in request.form.keys()
+            person.groupLeader = 'groupLeader' in request.form.keys()
+            person.platoonLeader = 'platoonLeader' in request.form.keys()
             try:
                 person.birthdate = datetime.strptime('{} 00:00:00'.format(request.form.get('birthdate')), "%d.%m.%Y %H:%M:%S")
             except ValueError:
                 pass
             person.identifier = request.form.get('identifier')
             person.remark = request.form.get('remark')
+            person.telegramId = request.form.get('telegramId')
             db.session.commit()
 
         elif request.form.get('action').startswith('deleteperson_'):

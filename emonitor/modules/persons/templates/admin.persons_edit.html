@@ -30,6 +30,24 @@
             </label>
         </p>
         <p>
+            <label>
+                <input type="checkbox" name="asgt"{%- if person.asgt %} checked="checked"{%- endif %}/>
+                {{ _('persons.asgt') }}
+            </label>
+        </p>
+        <p>
+            <label>
+                <input type="checkbox" name="groupLeader"{%- if person.groupLeader %} checked="checked"{%- endif %}/>
+                {{ _('persons.groupLeader') }}
+            </label>
+        </p>        
+        <p>
+            <label>
+                <input type="checkbox" name="platoonLeader"{%- if person.platoonLeader %} checked="checked"{%- endif %}/>
+                {{ _('persons.platoonLeader') }}
+            </label>
+        </p>        
+        <p>
             <label>{{ _('persons.grade') }}:<br/>
                 <select name="grade" style="width:99%">
                     <option value=""></option>
@@ -59,6 +77,10 @@
             <label>{{ _('persons.birthdate') }}:<br/>
                 <input type="text" name="birthdate" value="{{ person.birthdate|datetime('dd.MM.yyyy') }}" style="width:99%"/>
             </label>
+        </p>
+        <p>
+            <label>{{ _('persons.telegramId') }}:<br/>
+             <input type="text" name="telegramId" value="{{ person.telegramId }}" style="width:99%" required/>
         </p>
         <p>
             <label>{{ _('persons.remark') }}:<br/>

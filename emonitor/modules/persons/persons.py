@@ -18,14 +18,18 @@ class Person(db.Model):
     position = db.Column(db.String(32))
     identifier = db.Column(db.String(32))
     active = db.Column(db.BOOLEAN)
+    asgt = db.Column(db.BOOLEAN)
+    groupLeader = db.Column(db.BOOLEAN)
+    platoonLeader = db.Column(db.BOOLEAN)
     birthdate = db.Column(db.DATETIME)
     remark = db.Column(db.TEXT)
+    telegramId = db.Column(db.String(64))
     _dept = db.Column('dept', db.ForeignKey('departments.id'))
     _options = db.Column('options', db.TEXT)
 
     dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
 
-    def __init__(self, firstname, lastname, salutation, grade, position, identifier, active, birthdate, remark, dept, **options):
+    def __init__(self, firstname, lastname, salutation, grade, position, identifier, active, asgt, groupLeader, platoonLeader, birthdate, remark, telegramId, dept, **options):
         self.firstname = firstname
         self.lastname = lastname
         self.salutation = salutation
@@ -33,8 +37,12 @@ class Person(db.Model):
         self.position = position
         self.identifier = identifier
         self.active = active
+        self.asgt = asgt
+        self.groupLeader = groupLeader
+        self.platoonLeader = platoonLeader
         self.birthdate = birthdate
         self.remark = remark
+        self.telegramId = telegramId
         self._dept = dept
         self._options = yaml.safe_dump(options, encoding='utf-8')
 

@@ -6,7 +6,11 @@ from emonitor.modules.participation.participation import Participation
 from emonitor.modules.participation.content_admin import getAdminContent
 from emonitor.modules.participation.content_frontend import getFrontendData
 from emonitor.modules.participation.participation import ParticipationWidget
+from flask import Flask, jsonify, abort
+import logging
 
+logger = logging.getLogger (__name__)
+logger.setLevel (logging.DEBUG)
 
 class ParticipationModule(object, Module):
     """
@@ -38,6 +42,22 @@ class ParticipationModule(object, Module):
         babel.gettext(u'module.participation')
         babel.gettext(u'participation')
 
+        @app.route('/participation/rest/participation', methods=['GET'])
+        def rest_participation_static():          
+            pl = Participation.getParticipation()
+            logger.debug("REST %s" % pl)
+            #logger.debug("REST")
+            ml=[]
+            for p in pl:
+	        m={}
+	        m['id']=p.id
+	        m['datetime']=p.datetime
+	        m['alarm']=p._alarm
+	        m['person']=p._person
+	        m['dept']=p._person
+	        ml.append(m)
+            return jsonify (participation=ml, test='TEST')
+  
     def updateAdminSubNavigation(self):
         """
         Add submenu entries for admin area
