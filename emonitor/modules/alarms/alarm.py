@@ -89,7 +89,9 @@ class Alarm(db.Model):
     marker = property(alarmutils.get_marker)
     # bofh / added participation information
     participation = property(alarmutils.getParticipation)
-    yes = property(alarmutils.getPYes)
+    yes3min = property(alarmutils.getPYes3Min)
+    yes6min = property(alarmutils.getPYes6Min)
+    yes9min = property(alarmutils.getPYes9Min)
     no = property(alarmutils.getPNo)
     maybe = property(alarmutils.getPMaybe)
     unknown = property(alarmutils.getPUnknown)

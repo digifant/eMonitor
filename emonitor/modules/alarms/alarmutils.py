@@ -204,9 +204,15 @@ def set_position(self, position):
 
 #bofh
 #quick'n dirty hack. get participation information
-def getPYes (self):
+def getPYes3Min (self):
     from emonitor.modules.participation import Participation
-    return Participation.yes(alarmid=self.id )
+    return Participation.yes3min(alarmid=self.id )
+def getPYes6Min (self):
+    from emonitor.modules.participation import Participation
+    return Participation.yes6min(alarmid=self.id )
+def getPYes9Min (self):
+    from emonitor.modules.participation import Participation
+    return Participation.yes9min(alarmid=self.id )
 def getPNo (self):
     from emonitor.modules.participation import Participation
     return Participation.no(alarmid=self.id )
