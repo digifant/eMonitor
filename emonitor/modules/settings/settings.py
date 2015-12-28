@@ -1,6 +1,8 @@
 import os, math, yaml
 from emonitor.extensions import db
+import logging
 
+logger = logging.getLogger (__name__)
 
 class Struct(dict):
     def __init__(self, **entries):
@@ -49,6 +51,18 @@ class Settings(db.Model):
     @staticmethod
     def getCarTypes():
         return Settings.query.filter_by(name='cartypes').one().value
+
+    @staticmethod
+    def getParticipationTypes():
+        #return Settings.query.filter_by(name='participationtypes').one().value
+        #
+        # yaml bug?
+        # yaml.safe_dump({0: 'nein', 3: 'ja 3min', 6: 'ja 6min', 9: 'ja 9min'}, encoding='utf-8') produces string '{0: nein, 3: ja 3min, 6: ja 6min, 9: ja 9min}\n'
+        # yaml.load ( yaml.safe_dump({0: 'nein', 3: 'ja 3min', 6: 'ja 6min', 9: 'ja 9min'}, encoding='utf-8') ) works
+        # but not yaml.load if the string gets loaded out of the database
+        # hack / fix -> hartcode python 
+        m = {0: 'nein', 3: 'ja 3min', 6: 'ja 6min', 9: 'ja 9min'}
+        return m
 
     @staticmethod
     def get_byType(type):

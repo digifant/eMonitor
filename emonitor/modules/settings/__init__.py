@@ -50,6 +50,7 @@ class SettingsModule(Module):
             db.session.add(Settings.set('homeLng', ''))
             db.session.add(Settings.set('alarms.evalfields', '_bab_\r\n_train_\r\n_street_\r\n_default_city_\r\n_interchange_\r\n_kilometer_\r\n_bma_\r\n_bma_main_\r\n_bma_key_\r\n_train_identifier_'))
             db.session.add(Settings('cartypes', "- [car, '#ffffff']\n"))
+            db.session.add(Settings.set('participationtypes', '{0: nein, 3: ja 3min, 6: ja 6min, 9: ja 9min}\n'))
             db.session.commit()
 
     def checkDefinition(self):
