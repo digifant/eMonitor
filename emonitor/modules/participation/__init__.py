@@ -55,6 +55,7 @@ class ParticipationModule(object, Module):
 	        m['alarm']=p._alarm
 	        m['person']=p._person
 	        m['dept']=p._person
+	        m['participation']=p.participation
 	        ml.append(m)
             return jsonify (participation=ml, test='TEST')
   

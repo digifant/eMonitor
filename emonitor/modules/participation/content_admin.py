@@ -22,7 +22,7 @@ def getAdminContent(self, **params):
     if request.method == 'POST':
         if request.form.get('action') == 'createparticipation':  # add
             # todo: settings Settings.getParticipationTypes()
-            params.update({'participation': Participation(alarm='',person='',dept=''), 'persons':Person.getPersons(), 'departments': Department.getDepartments(), 'participationtypes': {0:'nein', 1:'ja', 2:'vielleicht', 4:'unbekannt'}, 'alarms':Alarm.getAlarms(state=1)})
+            params.update({'participation': Participation(alarm='',person='',dept=''), 'persons':Person.getPersons(), 'departments': Department.getDepartments(), 'participationtypes': {0:'nein', 3:'ja 3min', 6:'ja 6min', 9:'ja 9min'}, 'alarms':Alarm.getAlarms(state=1)})
             return render_template('admin.participation_edit.html', **params)
 
         elif request.form.get('action') == 'updateparticipation':  # save
@@ -50,7 +50,7 @@ def getAdminContent(self, **params):
             pass
             
         elif request.form.get('action').startswith('editparticipation_'):  # edit
-            params.update({'participation': Participation.getParticipation(id=request.form.get('action').split('_')[-1]), 'persons':Person.getPersons(), 'departments': Department.getDepartments(), 'participationtypes': {0:'nein', 1:'ja', 2:'vielleicht', 4:'unbekannt'}, 'alarms':Alarm.getAlarms(state=1)})
+            params.update({'participation': Participation.getParticipation(id=request.form.get('action').split('_')[-1]), 'persons':Person.getPersons(), 'departments': Department.getDepartments(), 'participationtypes': {0:'nein', 3:'ja 3min', 6:'ja 6min', 9:'ja 9min'}, 'alarms':Alarm.getAlarms(state=1)})
             return render_template('admin.participation_edit.html', **params)
 
         elif request.form.get('action').startswith('deleteparticipation_'):  # delete
