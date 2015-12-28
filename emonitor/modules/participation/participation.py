@@ -18,9 +18,14 @@ class Participation(db.Model):
     #2015-12-26: 3=yes 3min, 6=yes 6min, 9=yes 9min, 0=no, -1=maybe
     participation = db.Column(db.Integer)
     _alarm = db.Column('alarm', db.ForeignKey('alarms.id'))
+    alarm = db.relationship("Alarm", collection_class=attribute_mapped_collection('id'))
+    #alarm = db.relationship('alarms')
+    
     _person = db.Column('person', db.ForeignKey('persons.id'))
+    person = db.relationship("Person", collection_class=attribute_mapped_collection('id'))
     _dept = db.Column('dept', db.ForeignKey('departments.id'))
-    #_dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
+    dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
+    #dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
     datetime = db.Column('datetime', db.DateTime)
     
     def __init__(self, alarm, person, dept, participation=4, active=1, dt=''):
@@ -52,8 +57,8 @@ class Participation(db.Model):
         return "#a79c9c"
         
     def __str__(self):
-        #return "Participation id=" + self.id + " active=" + self.active + " participation=" + self.participation + " datetime=" + self.datetime + " person=" + self._person + " alarm=" + self._alarm + " dept=" + self._dept
-        return "todo implement me!"
+        return "Participation id=%s active=%s participation=%s datetime=%s person=%s alarm=%s dept=%s" % (self.id, self.active, self.participation, self.datetime, self._person, self._alarm, self._dept)
+        #return "todo implement me!"
 
     @staticmethod
     def yes3min(alarmid):
@@ -108,6 +113,10 @@ class Participation(db.Model):
             ret[p.id] = p
         return ret
 
+    #hack
+    @property
+    def participationStr (self):
+        return Settings.getParticipationTypes()[self.participation]
 
 class ParticipationWidget(MonitorWidget):
     """person participation widget for alarms"""

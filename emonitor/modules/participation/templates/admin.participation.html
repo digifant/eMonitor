@@ -24,12 +24,12 @@
     <form method="post" action="" style="padding-bottom:20px;">
         <div class="headrow">
             <div style="margin-right:70px;margin-left:15px;">
-                <div class="headcell" style="width:25%;">{{ _('participation.participation') }}</div>
-                <div class="headcell" style="width:15%;">{{ _('participation.alarm') }}</div>
-                <div class="headcell" style="width:10%;">{{ _('participation.person') }}</div>
-                <div class="headcell" style="width:10%;">{{ _('participation.dept') }}</div>
+                <div class="headcell" style="width:20%;">{{ _('participation.participation') }}</div>
+                <div class="headcell" style="width:20%;">{{ _('participation.alarm') }}</div>
+                <div class="headcell" style="width:20%;">{{ _('participation.person') }}</div>
+                <div class="headcell" style="width:20%;">{{ _('participation.dept') }}</div>
                 <div class="headcell" style="width:10%;">{{ _('participation.datetime') }}</div>
-                <div class="headcell" style="width:25%;text-align:right;">{{ _('participation.active') }}</div>
+                <div class="headcell" style="width:5%;text-align:right;">{{ _('participation.active') }}</div>
             </div>
             <button class="add" type="submit" name="action" value="createparticipation" title="{{ _('participation.addtitle') }}"><i class="fa fa-plus fa-lg"></i></button>
         </div>
@@ -43,12 +43,12 @@
             {% for p in participation %}
             <div class="row">
                 <div style="margin-right:70px;margin-left:15px;">
-                    <div class="rowcell" style="width:25%;">{{ p.participation }}</div>
-                    <div class="rowcell" style="width:25%;">{{ p._alarm }}</div>
-                    <div class="rowcell" style="width:15%;">{{ p._person }}</div>
-                    <div class="rowcell" style="width:10%;">{{ p._dept }}</div>
+                    <div class="rowcell" style="width:20%;">{{ p.participationStr }}</div>
+                    <div class="rowcell" style="width:20%;">{{ p.alarm.key.key }} {{ p.alarm.key.category }}</div>
+                    <div class="rowcell" style="width:20%;">{{ p.person.lastname }}, {{ p.person.firstname }}</div>
+                    <div class="rowcell" style="width:20%;">{{ p.dept.name }}</div>
                     <div class="rowcell" style="width:10%;">{{ p.datetime }}</div>
-                    <div class="rowcell" style="width:10%;">{{ p.active }}</div>
+                    <div class="rowcell" style="width:5%;">{{ p.active }}</div>
                 </div>
                 <button type="submit" name="action" value="deleteparticipation_{{ p.id }}" title="{{ _('participation.deletetitle') }}" onclick="return questionDel()"><i class="fa fa-trash-o fa-lg"></i></button>
                 <button type="submit" name="action" value="editparticipation_{{ p.id }}" title="{{ _('participation.edittitle') }}"><i class="fa fa-pencil fa-lg"></i></button>

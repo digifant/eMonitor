@@ -59,8 +59,10 @@ def getAdminContent(self, **params):
             return render_template('admin.participation_edit.html', **params)
 
         elif request.form.get('action').startswith('deleteparticipation_'):  # delete
+            alarm_id = Participation.getParticipation(id=request.form.get('action').split('_')[-1])._alarm
             db.session.delete(Participation.getParticipation(id=request.form.get('action').split('_')[-1]))
-            signal.send('alarm', 'updated', request.form.get('edit_participation'))
+            
+            signal.send('alarm', 'updated', alarmid=alarm_id)
             db.session.commit()
     try:
         #module[1]

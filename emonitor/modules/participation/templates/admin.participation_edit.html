@@ -18,9 +18,9 @@
         </p>
         <p>
             <label>{{ _('participation.person') }}:<br/>
-                <select name="edit_person" style="width:99%" required autofocus>
+                <select name="edit_person" style="width:99%" required autofocus>                
                     {% for person in persons %}
-                    <option value="{{ person.id }}" {% if person.id==participation._person.id %}selected="selected"{% endif %}>{{ person.fullname }}</option>
+                    <option value="{{ person.id }}" {% if person.id==participation._person %}selected="selected"{% endif %}>{{ person.fullname }}</option>
                     {% endfor %}
                 </select>
             </label>
@@ -29,7 +29,7 @@
             <label>{{ _('participation.alarm') }}:<br/>
                 <select name="edit_alarm" style="width:99%" required autofocus>
                     {% for alarm in alarms %}
-                    <option value="{{ alarm.id }}" {% if alarm.id==participation._alarm.id %}selected="selected"{% endif %}>{{ alarm._key }} / {{ alarm.timestamp }} </option>
+                    <option value="{{ alarm.id }}" {% if alarm.id==participation._alarm %}selected="selected"{% endif %}>{{ alarm._key }} / {{ alarm.timestamp }} </option>
                     {% endfor %}
                 </select>
             </label>
@@ -37,7 +37,7 @@
             <label>{{ _('participation.dept') }}:<br/>
                 <select name="edit_department" style="width:99%" required>
                     {% for department in departments %}
-                    <option value="{{ department.id }}" {% if department.id==participation._dept.id %}selected="selected"{% endif %}>{{ department.name }}</option>
+                    <option value="{{ department.id }}" {% if department.id==participation._dept %}selected="selected"{% endif %}>{{ department.name }}</option>
                     {% endfor %}
                 </select>
             </label>
