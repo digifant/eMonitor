@@ -43,21 +43,25 @@ class ParticipationModule(object, Module):
         babel.gettext(u'participation')
 
         @app.route('/participation/rest/participation', methods=['GET'])
-        def rest_participation_static():          
-            pl = Participation.getParticipation()
-            logger.debug("REST %s" % pl)
-            #logger.debug("REST")
-            ml=[]
-            for p in pl:
-	        m={}
-	        m['id']=p.id
-	        m['datetime']=p.datetime
-	        m['alarm']=p._alarm
-	        m['person']=p._person
-	        m['dept']=p._person
-	        m['participation']=p.participation
-	        ml.append(m)
-            return jsonify (participation=ml, test='TEST')
+        def rest_participation_static():
+            if request.method == 'GET':
+                pl = Participation.getParticipation()
+                logger.debug("REST %s" % pl)
+                #logger.debug("REST")
+                ml=[]
+                for p in pl:
+                    m={}
+                    m['id']=p.id
+                    m['datetime']=p.datetime
+                    m['alarm']=p._alarm
+                    m['person']=p._person
+                    m['dept']=p._person
+                    m['participation']=p.participation
+                    ml.append(m)
+                return jsonify (participation=ml, test='TEST')
+            elif request.method == 'POST':
+                logger.debug ("REST POST request=%s" % request)
+                #pass
   
     def updateAdminSubNavigation(self):
         """
