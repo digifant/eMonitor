@@ -6,7 +6,7 @@ from emonitor.modules.participation.participation import Participation
 from emonitor.modules.participation.content_admin import getAdminContent
 from emonitor.modules.participation.content_frontend import getFrontendData
 from emonitor.modules.participation.participation import ParticipationWidget
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, request
 import logging
 
 logger = logging.getLogger (__name__)
@@ -42,7 +42,7 @@ class ParticipationModule(object, Module):
         babel.gettext(u'module.participation')
         babel.gettext(u'participation')
 
-        @app.route('/participation/rest/participation', methods=['GET'])
+        @app.route('/participation/rest/participation', methods=['GET', 'POST'])
         def rest_participation_static():
             if request.method == 'GET':
                 pl = Participation.getParticipation()
@@ -61,7 +61,8 @@ class ParticipationModule(object, Module):
                 return jsonify (participation=ml, test='TEST')
             elif request.method == 'POST':
                 logger.debug ("REST POST request=%s" % request)
-                #pass
+                return jsonify({'result': True})
+            abort(404)
   
     def updateAdminSubNavigation(self):
         """
