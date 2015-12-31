@@ -65,7 +65,7 @@ class Person(db.Model):
         return int((datetime(1900, *self.birthdate.timetuple()[1:-2])).strftime('%j'))
 
     @staticmethod
-    def getPersons(id=0, identifier=0, dept=0, onlyactive=False):
+    def getPersons(id=0, identifier=0, dept=0, onlyactive=False, qtelegramId=''):
         if id != 0:
             return Person.query.filter_by(id=id).first()
         elif identifier != 0:
@@ -74,6 +74,8 @@ class Person(db.Model):
             if onlyactive:
                 return Person.query.filter_by(_dept=dept, active=True).order_by('lastname').all()
             return Person.query.filter_by(_dept=dept).order_by('lastname').all()
+        elif qtelegramId != '':
+            return Person.query.filter_by(telegramId=qtelegramId).first()
         else:
             if onlyactive:
                 return Person.query.filter_by(active=True).order_by('lastname').all()

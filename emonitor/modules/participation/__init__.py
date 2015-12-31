@@ -1,13 +1,16 @@
 import re
 from emonitor.utils import Module
 from emonitor.widget.monitorwidget import MonitorWidget
-from emonitor.extensions import babel
+from emonitor.extensions import babel, db
 from emonitor.modules.participation.participation import Participation
 from emonitor.modules.participation.content_admin import getAdminContent
 from emonitor.modules.participation.content_frontend import getFrontendData
 from emonitor.modules.participation.participation import ParticipationWidget
+from emonitor.modules.persons.persons import Person
+from emonitor.modules.alarms.alarm import Alarm
 from flask import Flask, jsonify, abort, request
 import logging
+import datetime
 
 logger = logging.getLogger (__name__)
 logger.setLevel (logging.DEBUG)
@@ -42,8 +45,9 @@ class ParticipationModule(object, Module):
         babel.gettext(u'module.participation')
         babel.gettext(u'participation')
 
-        @app.route('/participation/rest/participation', methods=['GET', 'POST'])
-        def rest_participation_static():
+        #curl -i -X POST -H "Content-Type: application/json" http://feerwehr/participation/rest/participation -d ' { "telegramId" : "007" , "participation":3 } '
+        @app.route('/participation/rest/participation', methods=['GET', 'POST'])        
+        def rest_participation_static():           
             if request.method == 'GET':
                 pl = Participation.getParticipation()
                 logger.debug("REST %s" % pl)
@@ -60,7 +64,38 @@ class ParticipationModule(object, Module):
                     ml.append(m)
                 return jsonify (participation=ml, test='TEST')
             elif request.method == 'POST':
-                logger.debug ("REST POST request=%s" % request)
+                logger.debug ("REST POST json=%s" % request.json)
+                if not request.json or ( not 'telegramId' in request.json or not 'participation' in request.json ):
+                    logger.debug("aha")
+                    abort(400)
+                person = Person.getPersons(qtelegramId=request.json['telegramId'])                
+                if person == None:
+                    logger.warn ("no person found with telegramId %s" % request.json['telegramId'])
+                    abort(400)
+                logger.debug("person with telegramId %s found: %s, %s" % (request.json['telegramId'], person.lastname, person.firstname))
+                part = Participation.getParticipation(qtelegramId=request.json['telegramId'])
+                if part.count()>0:
+                    #update
+                    for p in part:
+                        logger.info("active participation: %s updated to %s" % (p,request.json['participation']))
+                        p.participation = request.json['participation']
+                        p.datetime = datetime.datetime.now()
+                        db.session.commit()
+                else:
+                    #create new
+                    #find active alarm
+                    al = Alarm.getAlarms(state=1)
+                    for a in al:
+                        logger.debug("alarm %s" % a)
+                    try:
+                        alarm = al[0]
+                    except IndexError:
+                        logger.error ("no active alarm found -> create one first!")
+                        abort(400)
+                    p = Participation (alarm=alarm.id, person=person.id, participation=request.json['participation'])
+                    logger.info("new participation created for %s,%s: %s" % (person.lastname, person.firstname, request.json['participation']))
+                    db.session.add(p)
+                    db.session.commit()
                 return jsonify({'result': True})
             abort(404)
   

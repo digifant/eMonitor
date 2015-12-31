@@ -2,6 +2,8 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from emonitor.extensions import db
 from emonitor.widget.monitorwidget import MonitorWidget
 from emonitor.modules.settings.settings import Settings
+from emonitor.modules.persons.persons import Person
+from emonitor.modules.alarms.alarm import Alarm
 import datetime
 import logging
 
@@ -28,7 +30,7 @@ class Participation(db.Model):
     #dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
     datetime = db.Column('datetime', db.DateTime)
     
-    def __init__(self, alarm, person, dept, participation=4, active=1, dt=''):
+    def __init__(self, alarm, person, dept=1, participation=0, active=1, dt=''):
         self.participation = participation
         self.active = active
         self._alarm = alarm
@@ -89,12 +91,20 @@ class Participation(db.Model):
         return Participation.query.filter_by(_alarm=int(self._alarm), participation=9).count()
   
     @staticmethod
-    def getParticipation(id=0, alarmid=0, params=[]):
+    def getParticipation(id=0, alarmid=0, qtelegramId='', params=[]):
         logger.debug ("getParticipation alarmid=%s" %alarmid)
         if id != 0:
             return Participation.query.filter_by(id=int(id)).first()
         elif int(alarmid) != 0:
             return Participation.query.filter_by(_alarm=int(alarmid)).order_by('participation').all()
+        elif qtelegramId != '':
+            #p = Person.getPerson(qtelegramId=qtelegramId).order_by('participation').all()
+            #if p != None:
+                #return Participation.query.filter_by(_person=p.id)
+                #.filter_by(Person.telegramId=qtelegramId, Person.active=True, Alarm.active=True)                                
+            return Participation.query.join(Participation.person) \
+                                      .join(Participation.alarm) \
+                                      .filter (Person.telegramId==qtelegramId, Alarm.state==1)
         else:
             if 'onlyactive' in params:
                 return Participation.query.filter_by(active=1).order_by('alarm', 'participation').all()
