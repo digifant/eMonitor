@@ -20,9 +20,11 @@ class Event:
         return '<Event %s>' % self.name
 
     def handle(self, args):  # handle defined handlers (db) for current event
+        #logger.debug("handle %s %s " % (args, self.getHandlerList()))
         if 'mode' not in args.keys():
             args['mode'] = 'active'
 
+        #logger.debug("self.getHandlers() %s" % self.getHandlers())
         for db_handler in self.getHandlers():
             for handler in [hdl for hdl in self.getHandlerList() if hdl[0] == db_handler.handler or hdl[0] == '*']:
                 args.update(handler[1](self.name, **args))

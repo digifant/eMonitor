@@ -446,6 +446,9 @@ class Alarm(db.Model):
         from emonitor import app
         global LASTALARM
 
+
+        logger.debug ("handleEvent %s kwargs=%s" % (eventname, kwargs))
+        
         alarm_fields = dict()
         stime = time.time()
         alarmtype = None
@@ -458,6 +461,8 @@ class Alarm(db.Model):
                     del alarm_fields['error']
                 alarmtype = t
                 break
+            else:
+                logger.debug(t.keywords.replace('\r\n', '|'))
 
         # copy file -> original name
         if 'time' in alarm_fields and alarm_fields['time'][1] == 1:  # found correct time
@@ -521,6 +526,7 @@ class Alarm(db.Model):
         else:
             t = datetime.datetime.now()
 
+        logger.debug( "creating alarm object %s" % alarm_fields )
         alarm = Alarm(t, alarm_fields['key'][0], 1, 0)
         alarm.set('id.key', alarm_fields['key'][1])
         alarm.material = dict(cars1='', cars2='', material='')  # set required attributes
@@ -528,7 +534,7 @@ class Alarm(db.Model):
         alarm.set('filename', kwargs['filename'])
         alarm.set('priority', '1')  # set normal priority
         alarm.set('alarmtype', alarmtype.name)  # set checker name
-        alarm.state = 1
+        alarm.state = 1        
 
         # city
         if 'city' in alarm_fields and alarm_fields['city'][1] != 0:
@@ -571,6 +577,8 @@ class Alarm(db.Model):
                     if _s.cityid and _s.cityid not in _c and _s.cityid == alarm_fields['city'][1]:
                         _c.append(_s.cityid)
                         alarm.street = _s
+                        #import pdb; pdb.set_trace()
+                        # wenn object werden die koordinaten des obj gesetzt!
                         if 'object' in alarm_fields and str(alarm_fields['object'][1]) == '0':
                             if 'lat' not in alarm_fields and 'lng' not in alarm_fields:
                                 alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom)
@@ -655,7 +663,7 @@ class Alarm(db.Model):
             alarm.set('remark', alarm_fields['remark'][0])
             if alarmtype.translation(u'_bma_main_') in alarm_fields['remark'][0] or alarmtype.translation(u'_bma_main_') in alarm_fields['person'][0]:
                 alarmkey = Alarmkey.query.filter(Alarmkey.key.like(u"%{}%".format(alarmtype.translation(u'_bma_')))).first()
-                if alarmkey:
+                if alarmkey:                    
                     alarm.set('id.key', alarmkey.id)
                     alarm._key = u'{}: {}'.format(alarmkey.category, alarmkey.key)
                 else:

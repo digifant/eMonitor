@@ -13,7 +13,9 @@ OBSERVERACTIVE = 1
 ERROR_RAISED = 0
 
 FILES = []
-INPUTFORMAT = Settings.get('ocr.inputformat', ['pdf']) + Settings.get('ocr.inputtextformat', [])
+#todo move xml hack to settings
+INPUTFORMAT = Settings.get('ocr.inputformat', ['pdf']) + Settings.get('ocr.inputtextformat', []) + ['xml']
+#INPUTFORMAT = Settings.get('ocr.inputformat', ['pdf']) + Settings.get('ocr.inputtextformat', [])
 
 
 def observeFolder(**kwargs):

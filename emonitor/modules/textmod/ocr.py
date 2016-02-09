@@ -178,6 +178,19 @@ class Ocr(Settings):
         :param kwargs: *time*, *incomepath*, *filename*
         :return: add *text* to kwargs
         """
+        if kwargs['filename'].endswith('xml'):
+            logger.debug ("xml file -> only return text!")
+            fc = ''
+            try:
+                h = open ( kwargs['incomepath'] + os.sep + kwargs['filename'] )
+                for l in h.readlines():
+                   fc = fc + l.rstrip()
+            finally:
+                h.close()
+            kwargs['text'] = fc
+            logger.debug (fc)
+            return kwargs
+
         hdl = [hdl for hdl in Eventhandler.getEventhandlers(event=eventname) if hdl.handler == 'emonitor.modules.textmod.ocr.Ocr'][0]
         in_params = [v[1] for v in hdl.getParameterValues('in')]  # required parameters for method
         if sorted(in_params) != sorted(list(set(in_params) & set(kwargs.keys()))):
