@@ -577,7 +577,7 @@ class Alarm(db.Model):
                     if _s.cityid and _s.cityid not in _c and _s.cityid == alarm_fields['city'][1]:
                         _c.append(_s.cityid)
                         alarm.street = _s
-                        #import pdb; pdb.set_trace()
+                        import pdb; pdb.set_trace()
                         # wenn object werden die koordinaten des obj gesetzt!
                         if 'object' in alarm_fields and str(alarm_fields['object'][1]) == '0':
                             if 'lat' not in alarm_fields and 'lng' not in alarm_fields:
@@ -585,20 +585,33 @@ class Alarm(db.Model):
                                 if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':  # set marker if nominatim delivers result
                                     alarm.position = _position
                                     alarm.set('marker', '1')
+                        else:
+                            #new: set street coordinates 
+                            if _s.lat != u'0.0' and _s.lng != u'0.0':
+                                alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom)
+                                alarm.set('marker', '1')
+                                
             else:  # add unknown street
                 alarm.set('id.address', 0)
                 alarm.set('address', alarm_fields['address'][0])
+                # todo query webservice (coordinates)!
         # houseno
         if 'streetno' in alarm_fields.keys():
             alarm.set('streetno', alarm_fields['streetno'][0])
+            import pdb; pdb.set_trace()
             if 'id.streetno' in alarm_fields and 'lat' in alarm_fields and 'lng' in alarm_fields:
                 alarm.position = dict(lat=alarm_fields['lat'][0], lng=alarm_fields['lng'][0])
+                alarm.set('marker', '1')
                 alarm.set('id.streetno', alarm_fields['id.streetno'][1])
             else:
                 # new
-                hn = alarm.street.getHouseNumber(name=alarm_fields['streetno'][0])
+                hn = alarm.street.getHouseNumber(number=alarm_fields['streetno'][0])
                 if hn:
                     alarm.position = hn.getPosition(0)
+                else:
+                    #new no housenumber found -> query webservice!
+                    #todo
+                    pass
             if 'zoom' in alarm_fields.keys():
                 alarm.set('zoom', alarm_fields['zoom'][0])
 
@@ -720,6 +733,15 @@ class Alarm(db.Model):
             kwargs['time'] = []
         etime = time.time()
         kwargs['time'].append('alarm creation done in %s sec.' % (etime - stime))
+        
+        #new: compute coordinates and routing
+        import pdb; pdb.set_trace()
+        if alarm.lat == u'0.0' and alarm.lng == u'0.0':
+            import pdb; pdb.set_trace()
+            #-> no coords -> compute them
+            street = alarm.get_street()
+            hn = alarm.get_housenumber()
+            pdb.set_trace()
 
         if kwargs['mode'] != 'test':
             db.session.add(alarm)

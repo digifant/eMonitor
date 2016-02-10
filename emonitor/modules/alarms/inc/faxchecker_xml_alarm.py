@@ -81,8 +81,8 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         if m:
             if m.groupdict()['street'] or m.groupdict()['streetname']:  # normal street, fields: 'street', 'housenumber' with sub 'hn'
                 repl = difflib.get_close_matches(m.groupdict()['street'] or m.groupdict()['streetname'], [s.name for s in streets], 1)
-                import pdb; pdb.set_trace()
-                pdb.set_trace()
+                #import pdb; pdb.set_trace()
+                #pdb.set_trace()
                 if len(repl) > 0:
                     _streets = [s for s in filter(lambda s: s.name == repl[0], streets)]
                     if len(_streets) > 0:
