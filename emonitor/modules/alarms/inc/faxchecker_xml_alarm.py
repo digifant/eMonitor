@@ -4,6 +4,7 @@ import difflib
 import logging
 import datetime
 import xml.etree.ElementTree as ET
+from xml.sax.saxutils import escape
 from emonitor.modules.alarms.alarmutils import AlarmFaxChecker
 from emonitor.modules.streets.street import Street
 from emonitor.modules.streets.city import City
@@ -325,13 +326,16 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         #xmlstr = '<ALARM time="2016-02-03 00:13:00.353528"> <EINSATZ>Brand Auto 1</EINSATZ><STRASSE>Elsaesser Strasse</STRASSE><ORTSTEIL>Kleinblittersdorf</ORTSTEIL>      <GEMEINDE>Kleinblittersdorf</GEMEINDE>      <LANDKREIS>Regionalverband Saarbruecken</LANDKREIS>      <HINWEIS>Brand von 2 PKW, vermutl. auf franz. Seite</HINWEIS></ALARM>'
 
         xmlstr = rawtext
+        #xmlstr = escape (xmlstr)
 
         logger.debug ("starting xml parsing")
         try:
             root = ET.fromstring (xmlstr)
-        except xml.etree.ElementTree.ParseError:
+        except ET.ParseError:
             import traceback
             XmlAlarmFaxChecker().logger.error(u'error parsing the xml {}\n'.format(traceback.format_exc()))
+            logger.info ("XML string = %s" % xmlstr)
+            return values
 
         if root.tag == 'ALARM':
             dt = datetime.datetime.now()

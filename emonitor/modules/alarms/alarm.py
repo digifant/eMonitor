@@ -31,7 +31,7 @@ from emonitor.extensions import babel, db, events, scheduler, signal
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
-USE_NOMINATIM = 0
+USE_NOMINATIM = 1
 LASTALARM = 0.0  # timestamp ini millies
 
 
@@ -433,6 +433,34 @@ class Alarm(db.Model):
                         with open("%s/inc/%s.png" % (os.path.abspath(os.path.dirname(__file__)), params['filename']), 'rb') as f:
                             return f.read()
         abort(404)
+    
+    @staticmethod
+    def  queryOsmNominatim(alarm_fields=None, address='', city='', streetno=''):
+        _position = dict(lat=u'0.0', lng=u'0.0')
+        #import pdb; pdb.set_trace()
+        if alarm_fields != None:
+            if alarm_fields.has_key('streetno'):
+                streetno = alarm_fields['streetno'][0]
+            city = alarm_fields['city'][0]
+            address = alarm_fields['address'][0]
+        if USE_NOMINATIM == 1:
+            try:
+                url = 'http://nominatim.openstreetmap.org/search'
+                params = 'format=json&city={}&street={}'.format(city, address)
+                if streetno != '':
+                    params += ' {}'.format(streetno.split()[0])  # only first value
+                params = params.replace (' ', '+')
+                params = params.replace ('<', '&lt;')
+                params = params.replace ('>', '&gt;')
+                logger.debug ("OSM nominatim query: %s?%s" % (url,params))
+                r = requests.get('{}?{}'.format(url, params))
+                #import pdb; pdb.set_trace()
+                _position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
+            except:
+                import traceback
+                Alarm().logger.error(u'osm nominatim query errror {}\n'.format(traceback.format_exc()))
+        return _position
+
 
     @staticmethod
     def handleEvent(eventname, **kwargs):
@@ -503,12 +531,13 @@ class Alarm(db.Model):
         _position = dict(lat=u'0.0', lng=u'0.0')
         if USE_NOMINATIM == 1:
             try:
-                url = 'http://nominatim.openstreetmap.org/search'
-                params = 'format=json&city={}&street={}'.format(alarm_fields['city'][0], alarm_fields['address'][0])
-                if 'streetno' in alarm_fields:
-                    params += ' {}'.format(alarm_fields['streetno'][0].split()[0])  # only first value
-                r = requests.get('{}?{}'.format(url, params))
-                _position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
+                _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
+                #url = 'http://nominatim.openstreetmap.org/search'
+                #params = 'format=json&city={}&street={}'.format(alarm_fields['city'][0], alarm_fields['address'][0])
+                #if 'streetno' in alarm_fields:
+                    #params += ' {}'.format(alarm_fields['streetno'][0].split()[0])  # only first value
+                #r = requests.get('{}?{}'.format(url, params))
+                #_position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
             except:
                 pass
 
@@ -577,7 +606,7 @@ class Alarm(db.Model):
                     if _s.cityid and _s.cityid not in _c and _s.cityid == alarm_fields['city'][1]:
                         _c.append(_s.cityid)
                         alarm.street = _s
-                        import pdb; pdb.set_trace()
+                        #import pdb; pdb.set_trace()
                         # wenn object werden die koordinaten des obj gesetzt!
                         if 'object' in alarm_fields and str(alarm_fields['object'][1]) == '0':
                             if 'lat' not in alarm_fields and 'lng' not in alarm_fields:
@@ -594,7 +623,26 @@ class Alarm(db.Model):
             else:  # add unknown street
                 alarm.set('id.address', 0)
                 alarm.set('address', alarm_fields['address'][0])
-                # todo query webservice (coordinates)!
+                p = re.compile(r'(?P<street>(^\s*([L|B]\s*\d+)))')
+                m = p.match ( alarm_fields['address'][0] )
+                try:
+                    _s = m.groupdict()['street']
+                    alarm.set('address', _s)
+                    afa = list ( alarm_fields['address'] )
+                    afa[0] = _s
+                    alarm_fields['address'] = tuple (afa)
+                    logger.info ("L oder B Landstrasse gefunden: %s" % _s)
+                except:
+                    import traceback
+                    logger.error(u'L/B street search failed {}\n'.format(traceback.format_exc()))
+                #query webservice (coordinates)!
+                #import pdb; pdb.set_trace()
+                _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
+                if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
+                    alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=14)
+                    alarm.set('marker', '1')
+                
+                
         # houseno
         if 'streetno' in alarm_fields.keys():
             alarm.set('streetno', alarm_fields['streetno'][0])
@@ -610,8 +658,11 @@ class Alarm(db.Model):
                     alarm.position = hn.getPosition(0)
                 else:
                     #new no housenumber found -> query webservice!
-                    #todo
-                    pass
+                    #import pdb; pdb.set_trace()
+                    _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
+                    if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
+                        alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=14)
+                        alarm.set('marker', '1')
             if 'zoom' in alarm_fields.keys():
                 alarm.set('zoom', alarm_fields['zoom'][0])
 
@@ -717,14 +768,19 @@ class Alarm(db.Model):
                 alarm.material = dict(cars1=u','.join([str(c.id) for c in akc.cars1]), cars2=u",".join([str(c.id) for c in akc.cars2]), material=u",".join([str(c.id) for c in akc.materials]))
 
             l = (u'%s,%s,%s' % (alarm.get('k.cars1'), alarm.get('k.cars2'), alarm.get('k.material'))).split(',')
-            if len(set(str(alarm_fields['material'][1]).split(',')).intersection(set(l))) == 0:
+            #import pdb; pdb.set_trace()
+            try:
+                if len(set(str(alarm_fields['material'][1]).split(',')).intersection(set(l))) == 0:
+                    _dep = Department.getDefaultDepartment()
+                    for c in alarm_fields['material'][1].split(','):
+                        if c == u'0':  # default of home department needed
+                            alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(_dep.id)]), cars2=u",".join([str(c.id) for c in alarm.key.getCars2(_dep.id)]), material=u",".join([str(c.id) for c in alarm.key.getMaterial(_dep.id)]))
+                            break
+                    if u'0' not in alarm_fields['material'][1]:  # only single car needed
+                        alarm.set('k.cars1', u'{},{}'.format(alarm_fields['material'][1], alarm.get('k.cars1')))
+            except:
                 _dep = Department.getDefaultDepartment()
-                for c in alarm_fields['material'][1].split(','):
-                    if c == u'0':  # default of home department needed
-                        alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(_dep.id)]), cars2=u",".join([str(c.id) for c in alarm.key.getCars2(_dep.id)]), material=u",".join([str(c.id) for c in alarm.key.getMaterial(_dep.id)]))
-                        break
-                if u'0' not in alarm_fields['material'][1]:  # only single car needed
-                    alarm.set('k.cars1', u'{},{}'.format(alarm_fields['material'][1], alarm.get('k.cars1')))
+                alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(_dep.id)]), cars2=u",".join([str(c.id) for c in alarm.key.getCars2(_dep.id)]), material=u",".join([str(c.id) for c in alarm.key.getMaterial(_dep.id)]))
 
         if _ao and _ao.hasOwnAAO():  # use aao of current object
             alarm.material = dict(cars1=u",".join([str(c.id) for c in _ao.getCars1()]), cars2=u",".join([str(c.id) for c in _ao.getCars2()]), material=u",".join([str(c.id) for c in _ao.getMaterial()]))
@@ -734,15 +790,6 @@ class Alarm(db.Model):
         etime = time.time()
         kwargs['time'].append('alarm creation done in %s sec.' % (etime - stime))
         
-        #new: compute coordinates and routing
-        import pdb; pdb.set_trace()
-        if alarm.lat == u'0.0' and alarm.lng == u'0.0':
-            import pdb; pdb.set_trace()
-            #-> no coords -> compute them
-            street = alarm.get_street()
-            hn = alarm.get_housenumber()
-            pdb.set_trace()
-
         if kwargs['mode'] != 'test':
             db.session.add(alarm)
             db.session.commit()
