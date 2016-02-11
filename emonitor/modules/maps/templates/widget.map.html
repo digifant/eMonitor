@@ -18,7 +18,7 @@
 <script>
     var map = new L.Map('map', {zoom:12, doubleClickZoom:false, zoomControl: false});
     new L.EmonitorMarkers().addTo(map); /* marker extension */
-    var startzoom = 18;
+    var startzoom = 16;
     
     var MyMarker = L.Icon.extend({options:{shadowUrl: '/img/marker-shadow.png', iconAnchor:[12, 41], popupAnchor:[0, -42]}});
     var redmarker = new MyMarker({iconUrl:'/img/marker_red.png'});
@@ -48,8 +48,8 @@
         coord['lat'].push({{ p[0] }});
         coord['lng'].push({{ p[1] }});
     {%- endfor %}
-    map.addHouseNumber(coord); 
-{%- elif alarm.get('marker')==1 %}
+    map.addHouseNumber(coord);     
+{%- elif alarm.get('marker')=='1' %}
     map.addMarker({{ alarm.get('lat') }}, {{ alarm.get('lng') }}, 1, false);
 {%- elif alarm.street.lat %}
     map.addMarker({{ alarm.street.lat }}, {{ alarm.street.lng }}, 1, false);
