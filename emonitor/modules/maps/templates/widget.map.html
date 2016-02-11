@@ -48,11 +48,31 @@
         coord['lat'].push({{ p[0] }});
         coord['lng'].push({{ p[1] }});
     {%- endfor %}
-    map.addHouseNumber(coord);
+    map.addHouseNumber(coord); 
 {%- elif alarm.get('marker')==1 %}
     map.addMarker({{ alarm.get('lat') }}, {{ alarm.get('lng') }}, 1, false);
 {%- elif alarm.street.lat %}
     map.addMarker({{ alarm.street.lat }}, {{ alarm.street.lng }}, 1, false);
 {%- endif %}
+
+    showRoute({{ alarm.id }})
+function showRoute(id){
+    map.clearRoute();
+    //debugger;
+    //if($('#route_{{ alarm.id }}').toggleClass('fa-random').hasClass('fa-random')) {
+        $.ajax({ type: "POST", url: "/data/alarms?action=routecoords&alarmid={{ alarm.id }}",
+            success: function (ret) {
+                if (ret.error=='1') {
+                    alert(ret.errormessage);
+                }else {
+                    map.addRoute(ret);
+                }
+                return false;
+            }
+        });
+    //}
+    return false;
+}
+
 </script>
 {%- endif %}

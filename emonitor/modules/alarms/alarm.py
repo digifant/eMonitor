@@ -639,16 +639,16 @@ class Alarm(db.Model):
                 #import pdb; pdb.set_trace()
                 _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
                 if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
-                    alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=14)
+                    alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
                     alarm.set('marker', '1')
                 
                 
         # houseno
         if 'streetno' in alarm_fields.keys():
             alarm.set('streetno', alarm_fields['streetno'][0])
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
             if 'id.streetno' in alarm_fields and 'lat' in alarm_fields and 'lng' in alarm_fields:
-                alarm.position = dict(lat=alarm_fields['lat'][0], lng=alarm_fields['lng'][0])
+                alarm.position = dict(lat=alarm_fields['lat'][0], lng=alarm_fields['lng'][0], zoom=16)
                 alarm.set('marker', '1')
                 alarm.set('id.streetno', alarm_fields['id.streetno'][1])
             else:
@@ -661,7 +661,7 @@ class Alarm(db.Model):
                     #import pdb; pdb.set_trace()
                     _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
                     if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
-                        alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=14)
+                        alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
                         alarm.set('marker', '1')
             if 'zoom' in alarm_fields.keys():
                 alarm.set('zoom', alarm_fields['zoom'][0])
@@ -739,7 +739,8 @@ class Alarm(db.Model):
 
         # material
         if alarm.get('id.key') != 0 and 'city' in alarm_fields:  # found key with aao
-            if alarm_fields['city'][1] != 0:  # default city
+            #import pdb; pdb.set_trace()
+            if alarm_fields['city'][1] != 0:  # default city; eigener Ortsteil fuer LB
                 if Department.getDepartments(id=alarm.city.dept).defaultcity == alarm_fields['city'][1]:  # default city for dep
                     if 'material' in alarm_fields:
                         if str(alarm_fields['material'][1])[0] == '0':  # default cars for aao
@@ -751,9 +752,22 @@ class Alarm(db.Model):
                         for _c in u'{}'.format(alarm_fields['material'][1]).split(','):  # add additional cars
                             if _c != '0' and _c not in alarm.get('k.cars1').split(','):
                                 alarm.set('k.cars1', u'{},{}'.format(alarm.get('k.cars1'), _c))
+                    else:
+                        #no material alarmed -> follow aao
+                        try:
+                            alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(alarm.street.city.dept)]), cars2=u','.join([str(c.id) for c in alarm.key.getCars2(alarm.street.city.dept)]), material=u','.join([str(c.id) for c in alarm.key.getMaterial(alarm.street.city.dept)]))
+                        except AttributeError:
+                            alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(alarm.city.dept)]), cars2=u','.join([str(c.id) for c in alarm.key.getCars2(alarm.city.dept)]), material=u','.join([str(c.id) for c in alarm.key.getMaterial(alarm.city.dept)]))
 
-                else:  # only alarmed material
-                    alarm.material = dict(cars1=alarm_fields['material'][1])
+                else:  # only alarmed material; fremder Ortsteil; nur alarmiertes Material
+                    if alarm_fields.has_key('material'):
+                        alarm.material = dict(cars1=alarm_fields['material'][1])
+                    else:
+                        #no material alarmed -> follow aao
+                        try:
+                            alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(alarm.street.city.dept)]), cars2=u','.join([str(c.id) for c in alarm.key.getCars2(alarm.street.city.dept)]), material=u','.join([str(c.id) for c in alarm.key.getMaterial(alarm.street.city.dept)]))
+                        except AttributeError:
+                            alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(alarm.city.dept)]), cars2=u','.join([str(c.id) for c in alarm.key.getCars2(alarm.city.dept)]), material=u','.join([str(c.id) for c in alarm.key.getMaterial(alarm.city.dept)]))
 
             else:  # else city
                 if alarm_fields['material'][1] == u'0':  # default cars for aao

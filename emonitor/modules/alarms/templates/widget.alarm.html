@@ -20,7 +20,7 @@
         {%- endif %}
     </style>
     <div class="monitor_alarm_key">
-        <span id="alarm_key_category">{{ alarmcategory }}{% if alarmcategory!='' %}: {% endif %}</span>
+        <!-- <span id="alarm_key_category">{{ alarmcategory }}{% if alarmcategory!='' %}: {% endif %}</span> --> <!-- cat / key redundant --> 
         <span id="alarm_key_key">{{  alarmkey }}</span>
         {%- if alarmbject!="" %}
             <br/><span class="alarm_object">{%- if alarm.object and alarm.object.alarmplan not in ['', ' ', None] %}{{ alarm.object.alarmplan }}&nbsp;{%- endif %}{{ alarmobject }}</span>

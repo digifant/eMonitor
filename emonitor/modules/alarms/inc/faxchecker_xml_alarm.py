@@ -282,6 +282,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         keys = {}
         try:
             for k in Alarmkey.getAlarmkeys():
+                # z.B. 'Brand 3' = id
                 keys[k.key] = k.id
 
             repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1, cutoff=0.8)  # default cutoff 0.6
