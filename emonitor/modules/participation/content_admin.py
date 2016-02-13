@@ -5,6 +5,9 @@ from emonitor.modules.settings.settings import Settings
 from emonitor.modules.participation.participation import Participation
 from emonitor.modules.persons.persons import Person
 from emonitor.modules.alarms.alarm import Alarm
+from emonitor.modules.monitors.monitor import Monitor
+from emonitor.modules.monitors.monitorlayout import MonitorLayout
+from emonitor.extensions import monitorserver
 import datetime
 import logging
 
@@ -19,7 +22,7 @@ def getAdminContent(self, **params):
     """
     module = request.view_args['module'].split('/')
     
-    logger.debug( 'participationtypes %s' % Settings.getParticipationTypes()[0])
+    #logger.debug( 'participationtypes %s' % Settings.getParticipationTypes()[99])
     
     if len(module) < 2:
         module.append(u'1')
@@ -48,8 +51,9 @@ def getAdminContent(self, **params):
             p._dept = request.form.get('edit_department')
             #p.datetime = request.form.get('edit_datetime')
             p.datetime = datetime.datetime.now()
-            signal.send('alarm', 'updated', alarmid=p._alarm)    
             db.session.commit()
+            signal.send('alarm', 'updated', alarmid=p._alarm)
+            monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
             
         elif request.form.get('action') == 'cancel':
             pass
@@ -60,10 +64,10 @@ def getAdminContent(self, **params):
 
         elif request.form.get('action').startswith('deleteparticipation_'):  # delete
             alarm_id = Participation.getParticipation(id=request.form.get('action').split('_')[-1])._alarm
-            db.session.delete(Participation.getParticipation(id=request.form.get('action').split('_')[-1]))
-            
-            signal.send('alarm', 'updated', alarmid=alarm_id)
+            db.session.delete(Participation.getParticipation(id=request.form.get('action').split('_')[-1]))           
             db.session.commit()
+            signal.send('alarm', 'updated', alarmid=alarm_id)
+            monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
     try:
         #module[1]
         p = Participation.getParticipation()

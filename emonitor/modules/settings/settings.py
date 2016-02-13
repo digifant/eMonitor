@@ -61,6 +61,7 @@ class Settings(db.Model):
         # yaml.load ( yaml.safe_dump({0: 'nein', 3: 'ja 3min', 6: 'ja 6min', 9: 'ja 9min'}, encoding='utf-8') ) works
         # but not yaml.load if the string gets loaded out of the database
         # hack / fix -> hartcode python 
+        # TODO FIXME
         m = {0: 'nein', 3: 'ja 3min', 6: 'ja 6min', 9: 'ja 9min'}
         return m
 

@@ -89,6 +89,7 @@ class Alarm(db.Model):
     marker = property(alarmutils.get_marker)
     # bofh / added participation information
     participation = property(alarmutils.getParticipation)
+    yes3minDetailed = property(alarmutils.getPYes3MinDetailed)
     yes3min = property(alarmutils.getPYes3Min)
     yes6min = property(alarmutils.getPYes6Min)
     yes9min = property(alarmutils.getPYes9Min)
@@ -441,12 +442,13 @@ class Alarm(db.Model):
         if alarm_fields != None:
             if alarm_fields.has_key('streetno'):
                 streetno = alarm_fields['streetno'][0]
-            city = alarm_fields['city'][0]
-            address = alarm_fields['address'][0]
+            city = alarm_fields['city'][0].encode('utf-8')
+            address = alarm_fields['address'][0].encode('utf-8')
         if USE_NOMINATIM == 1:
             try:
                 url = 'http://nominatim.openstreetmap.org/search'
                 params = 'format=json&city={}&street={}'.format(city, address)
+                #params = 'format=json&city=%s&street=%s' % (city, address)
                 if streetno != '':
                     params += ' {}'.format(streetno.split()[0])  # only first value
                 params = params.replace (' ', '+')

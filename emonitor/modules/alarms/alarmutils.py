@@ -223,6 +223,10 @@ def getPUnknown (self):
     from emonitor.modules.participation import Participation
     return Participation.unknown(alarmid=self.id )
 
+def getPYes3MinDetailed (self):
+    from emonitor.modules.participation import Participation
+    return Participation.yes3minDetailed(alarmid=self.id )
+
 def getParticipation (self):
     from emonitor.modules.participation import Participation
     return Participation.getParticipation(alarmid=self.id )

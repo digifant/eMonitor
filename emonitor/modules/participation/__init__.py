@@ -8,6 +8,7 @@ from emonitor.modules.participation.content_frontend import getFrontendData
 from emonitor.modules.participation.participation import ParticipationWidget
 from emonitor.modules.persons.persons import Person
 from emonitor.modules.alarms.alarm import Alarm
+from emonitor.extensions import monitorserver
 from flask import Flask, jsonify, abort, request
 import logging
 import datetime
@@ -45,7 +46,7 @@ class ParticipationModule(object, Module):
         babel.gettext(u'module.participation')
         babel.gettext(u'participation')
 
-        #curl -i -X POST -H "Content-Type: application/json" http://feerwehr/participation/rest/participation -d ' { "telegramId" : "007" , "participation":3 } '
+        #curl -i -X POST -H "Content-Type: application/json" http://feuerwehr/participation/rest/participation -d ' { "telegramId" : "007" , "participation":3 } '
         @app.route('/participation/rest/participation', methods=['GET', 'POST'])        
         def rest_participation_static():           
             if request.method == 'GET':
@@ -96,6 +97,8 @@ class ParticipationModule(object, Module):
                     logger.info("new participation created for %s,%s: %s" % (person.lastname, person.firstname, request.json['participation']))
                     db.session.add(p)
                     db.session.commit()
+                #signal.send('alarm', 'updated', alarmid=alarm_id)
+                monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
                 return jsonify({'result': True})
             abort(404)
   

@@ -286,6 +286,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
                 keys[k.key] = k.id
 
             repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1, cutoff=0.8)  # default cutoff 0.6
+            #TODO FIXME <STICHWORT>Brand 3 348 BMA RV</STICHWORT> matcht nicht
             if len(repl) == 0:
                 repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1)  # try with default cutoff
             if len(repl) > 0:
@@ -316,7 +317,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
 
 
         #xmlstr = '<ALARM time="2016-02-03 00:13:00.353528">
-        #<EINSATZ>Brand Auto 1</EINSATZ>
+        #<STICHWORT>Brand Auto 1</STICHWORT>
         #<STRASSE>Elsaesser Strasse</STRASSE>
         #<ORTSTEIL>Kleinblittersdorf</ORTSTEIL>
         #<GEMEINDE>Kleinblittersdorf</GEMEINDE>
@@ -349,7 +350,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
                 #print ("%s %s" % (child.tag, child.attrib))
             einsatz = ''
             try:
-                einsatz = root.find('EINSATZ').text
+                einsatz = root.find('STICHWORT').text
             except AttributeError:
                 pass
             self.fields['key'] = {0:einsatz , 1:0}

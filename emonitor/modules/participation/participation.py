@@ -8,6 +8,7 @@ import datetime
 import logging
 
 logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 class Participation(db.Model):
     """Car class"""
@@ -63,6 +64,16 @@ class Participation(db.Model):
         #return "todo implement me!"
 
     @staticmethod
+    def yes3minDetailed(alarmid):
+        gl = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.groupLeader==True, Alarm.id==alarmid).count()
+        pl = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.platoonLeader==True, Alarm.id==alarmid).count()
+        asgt = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.asgt==True, Alarm.id==alarmid).count()
+        normal = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.asgt==False, Person.platoonLeader==False, Person.groupLeader==False, Alarm.id==alarmid).count()
+        rs = ('%s / %s / %s / %s' % (pl, gl, asgt, normal))
+        logger.debug ("yes3minDetailed %s" % rs)
+        return rs
+
+    @staticmethod
     def yes3min(alarmid):
         return Participation.query.filter_by(_alarm=int(alarmid), participation=3).count()
     @staticmethod
@@ -82,7 +93,7 @@ class Participation(db.Model):
     @staticmethod
     def unknown(alarmid):
         return Participation.query.filter_by(_alarm=int(alarmid), participation=99).count()
-      
+    
     def getParticipationCountYes3min (self):
         return Participation.query.filter_by(_alarm=int(self._alarm), participation=3).count()
     def getParticipationCountYes6min (self):
