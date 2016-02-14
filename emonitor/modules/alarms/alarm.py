@@ -92,6 +92,8 @@ class Alarm(db.Model):
     # bofh / added participation information
     participation = property(alarmutils.getParticipation)
     yes3minDetailed = property(alarmutils.getPYes3MinDetailed)
+    yes6minDetailed = property(alarmutils.getPYes6MinDetailed)
+    yes9minDetailed = property(alarmutils.getPYes9MinDetailed)
     yes3min = property(alarmutils.getPYes3Min)
     yes6min = property(alarmutils.getPYes6Min)
     yes9min = property(alarmutils.getPYes9Min)
@@ -583,12 +585,6 @@ class Alarm(db.Model):
         if USE_NOMINATIM == 1:
             try:
                 _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
-                #url = 'http://nominatim.openstreetmap.org/search'
-                #params = 'format=json&city={}&street={}'.format(alarm_fields['city'][0], alarm_fields['address'][0])
-                #if 'streetno' in alarm_fields:
-                    #params += ' {}'.format(alarm_fields['streetno'][0].split()[0])  # only first value
-                #r = requests.get('{}?{}'.format(url, params))
-                #_position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
             except:
                 pass
 
@@ -657,12 +653,12 @@ class Alarm(db.Model):
                     if _s.cityid and _s.cityid not in _c and _s.cityid == alarm_fields['city'][1]:
                         _c.append(_s.cityid)
                         alarm.street = _s
-                        #import pdb; pdb.set_trace()
-                        # wenn object werden die koordinaten des obj gesetzt!
+                        #import pdb; pdb.set_trace()                        
                         if 'object' in alarm_fields and str(alarm_fields['object'][1]) == '0':
                             if 'lat' not in alarm_fields and 'lng' not in alarm_fields:
-                                alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom)
-                                if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':  # set marker if nominatim delivers result
+                                alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom) #set street coordinates
+                                if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':  
+                                    # set nominatim result and marker
                                     alarm.position = _position
                                     alarm.set('marker', '1')
                         else:
@@ -706,10 +702,9 @@ class Alarm(db.Model):
                 # new
                 hn = alarm.street.getHouseNumber(number=alarm_fields['streetno'][0])
                 if hn:
-                    #import pdb; pdb.set_trace()
                     alarm.position = hn.getPosition(0)
                 else:
-                    #new no housenumber found -> query webservice!
+                    #no housenumber found -> query webservice!
                     #import pdb; pdb.set_trace()                    
                     
                     #1.
@@ -779,6 +774,7 @@ class Alarm(db.Model):
                         alarm.set('streetno', alarm_fields['streetno'][0])
                     else:
                         alarm.set('streetno', _ao.streetno)
+                #set position of alarm object!
                 alarm.position = dict(lat=_ao.lat, lng=_ao.lng, zoom=_ao.zoom)
 
         # remark

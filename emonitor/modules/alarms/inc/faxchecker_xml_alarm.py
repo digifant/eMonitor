@@ -320,6 +320,31 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         finally:
             return
 
+    @staticmethod
+    def evalObject(fieldname, **params):
+        _str = XmlAlarmFaxChecker().fields[fieldname][0].replace('\xc3\x9c'.decode('utf-8'), u'0')
+        objects = AlarmObject.getAlarmObjects()
+        repl = difflib.get_close_matches(_str, [o.name for o in objects], 1)
+        if repl:
+            o = filter(lambda o: o.name == repl[0], objects)
+            XmlAlarmFaxChecker().fields[fieldname] = (repl[0], o[0].id)
+            XmlAlarmFaxChecker().logger.debug(u'object: "{}" objectlist -> {}'.format(_str, repl[0]))
+        else:
+            s = ""
+            for p in _str.split():
+                s += p
+                repl = difflib.get_close_matches(s, [o.name for o in objects], 1)
+
+                if len(repl) == 1:
+                    o = filter(lambda o: o.name == repl[0], objects)
+                    XmlAlarmFaxChecker().fields[fieldname] = (repl[0], o[0].id)
+                    XmlAlarmFaxChecker().logger.debug(u'object: "{}" special handling -> {}'.format(_str, repl[0]))
+                    return
+
+            XmlAlarmFaxChecker().fields[fieldname] = (_str, 0)
+        return
+
+
     def buildAlarmFromText(self, alarmtype, rawtext):
         logger.debug ("buildAlarmFromText %s %s" % (alarmtype, rawtext))
 
@@ -411,7 +436,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             self.evalKey ('key')
             self.evalCity('city')
             self.evalStreet('address')
-            #TODO evalObject
+            #TODO evalObject TEST
 
         for k in XmlAlarmFaxChecker().fields:
             try:

@@ -64,13 +64,22 @@ class Participation(db.Model):
         #return "todo implement me!"
 
     @staticmethod
-    def yes3minDetailed(alarmid):
-        gl = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.groupLeader==True, Alarm.id==alarmid).count()
-        pl = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.platoonLeader==True, Alarm.id==alarmid).count()
-        asgt = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.asgt==True, Alarm.id==alarmid).count()
-        normal = Participation.query.filter_by(participation=3).join(Participation.person).join(Participation.alarm).filter (Person.asgt==False, Person.platoonLeader==False, Person.groupLeader==False, Alarm.id==alarmid).count()
+    def yes3minDetailed(alarmid):        
+        return Participation.yesXminDetailed(alarmid, 3)
+    @staticmethod
+    def yes6minDetailed(alarmid):        
+        return Participation.yesXminDetailed(alarmid, 6)
+    @staticmethod
+    def yes9minDetailed(alarmid):        
+        return Participation.yesXminDetailed(alarmid, 9)
+    @staticmethod
+    def yesXminDetailed(alarmid, min=3):
+        gl = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Person.groupLeader==True, Alarm.id==alarmid).count()
+        pl = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Person.platoonLeader==True, Alarm.id==alarmid).count()
+        asgt = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Person.asgt==True, Alarm.id==alarmid).count()
+        normal = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Person.asgt==False, Person.platoonLeader==False, Person.groupLeader==False, Alarm.id==alarmid).count()
         rs = ('%s / %s / %s / %s' % (pl, gl, asgt, normal))
-        logger.debug ("yes3minDetailed %s" % rs)
+        logger.debug ("yesXminDetailed x=%s %s" % (min,rs))
         return rs
 
     @staticmethod

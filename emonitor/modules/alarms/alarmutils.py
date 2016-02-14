@@ -18,6 +18,7 @@ from emonitor.modules.events.eventhandler import Eventhandler
 from emonitor.modules.streets.street import Street
 from emonitor.modules.settings.settings import Settings
 
+
 # helper methods for object attributes
 def get_street_proto(self, stype):  # deliver street object
     _t = {1: 'address', 2: 'address2'}
@@ -226,6 +227,12 @@ def getPUnknown (self):
 def getPYes3MinDetailed (self):
     from emonitor.modules.participation import Participation
     return Participation.yes3minDetailed(alarmid=self.id )
+def getPYes6MinDetailed (self):
+    from emonitor.modules.participation import Participation
+    return Participation.yes6minDetailed(alarmid=self.id )
+def getPYes9MinDetailed (self):
+    from emonitor.modules.participation import Participation
+    return Participation.yes9minDetailed(alarmid=self.id )
 
 def getParticipation (self):
     from emonitor.modules.participation import Participation
