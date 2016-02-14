@@ -7,6 +7,7 @@ import re
 import yaml
 from collections import OrderedDict
 import logging
+import traceback
 
 from flask import current_app, flash, render_template, abort
 from flask.templating import TemplateNotFound
@@ -31,6 +32,7 @@ from emonitor.extensions import babel, db, events, scheduler, signal
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
+USE_MAPS_GEOCODING_API = 1
 USE_NOMINATIM = 1
 LASTALARM = 0.0  # timestamp ini millies
 
@@ -460,7 +462,54 @@ class Alarm(db.Model):
                 _position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
             except:
                 import traceback
-                Alarm().logger.error(u'osm nominatim query errror {}\n'.format(traceback.format_exc()))
+                logger.error(u'osm nominatim query errror {}\n'.format(traceback.format_exc()))
+        return _position
+
+    @staticmethod
+    def  queryGoogleMapsGeocodingApi(alarm_fields=None, address='', city='', streetno=''):        
+        _position = dict(lat=u'0.0', lng=u'0.0')        
+        if alarm_fields != None:
+            if alarm_fields.has_key('streetno'):
+                streetno = alarm_fields['streetno'][0]
+            city = alarm_fields['city'][0].encode('utf-8')
+            address = alarm_fields['address'][0].encode('utf-8')
+        if USE_MAPS_GEOCODING_API == 1:
+            if Settings.get('google-api-key', '') == '':
+                logger.warn ('google-api-key not set in table settings!')
+                return _position
+            try:
+                url = 'https://maps.googleapis.com/maps/api/geocode/json'
+                params = ''
+                if streetno != '':
+                    #params = '?address=%s %s, %s' % (address, streetno.split()[0], city)  # only first value
+                    params = '?address={} {}, {}'.format (address, streetno.split()[0], city)
+                else:
+                    params = '?address=%s, %s' % (address, city)
+                params = params + '?key=%s' % Settings.get('google-api-key', '')
+                params = params.replace (' ', '+')
+                params = params.replace ('<', '&lt;')
+                params = params.replace ('>', '&gt;')
+                url = url + params
+                logger.debug ("google maps geocoding api query: %s" % (url))
+                #import pdb; pdb.set_trace()
+                r = requests.get(url)
+                logger.debug('response: %s' % r)
+                if r.status_code == 200:
+                    try:
+                        if r.json()['status'] != 'OK':
+                            logger.warn ("google geocoding api query status not ok: %s" % r.json()['status'])
+                            return _position
+                        if len ( r.json()['results'] ) > 1:
+                            logger.warn ("google geocoding api got more than 1 results for %s" % params)
+                        res = r.json()['results'][0] #use first result
+                        res['geometry']['location']['lat']
+                        _position = dict(lat=res['geometry']['location']['lat'], lng=res['geometry']['location']['lng'])
+                        logger.debug('google geocoding query successfull: %s' % res['geometry']['location'])
+                    except ValueError:
+                        logger.error ('invalid json. raw response=%s\n%s' % (r.text, traceback.format_exec()))
+                
+            except:                
+                logger.error(u'google geocoding query error {}\n'.format(traceback.format_exc()))
         return _position
 
 
@@ -657,13 +706,19 @@ class Alarm(db.Model):
                 # new
                 hn = alarm.street.getHouseNumber(number=alarm_fields['streetno'][0])
                 if hn:
-                    import pdb; pdb.set_trace()
+                    #import pdb; pdb.set_trace()
                     alarm.position = hn.getPosition(0)
                 else:
                     #new no housenumber found -> query webservice!
-                    #import pdb; pdb.set_trace()
-                    #TODO query google maps?
-                    _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
+                    #import pdb; pdb.set_trace()                    
+                    
+                    #1.
+                    # query google maps geocoding api
+                    _position = Alarm.queryGoogleMapsGeocodingApi (alarm_fields=alarm_fields)
+                    if _position['lat'] == u'0.0' and _position['lng'] == u'0.0':
+                        # 2. best
+                        # query osm nominatim api -> problem: most street numbers are missing currently for our town
+                        _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
                     if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
                         alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
                         alarm.set('marker', '1')
