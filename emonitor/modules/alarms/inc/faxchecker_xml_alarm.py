@@ -1,5 +1,6 @@
 from collections import OrderedDict
 import re
+import traceback
 import difflib
 import logging
 import datetime
@@ -114,8 +115,11 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
                             if len(db_hn) > 0:
                                 XmlAlarmFaxChecker().fields['id.streetno'] = (db_hn[0].number, db_hn[0].id)
                                 XmlAlarmFaxChecker().fields['streetno'] = (_housenumber, db_hn[0].id)
-                                XmlAlarmFaxChecker().fields['lat'] = (db_hn[0].points[0][0], db_hn[0].id)
-                                XmlAlarmFaxChecker().fields['lng'] = (db_hn[0].points[0][1], db_hn[0].id)
+                                #XmlAlarmFaxChecker().fields['lat'] = (db_hn[0].points[0][0], db_hn[0].id)
+                                #XmlAlarmFaxChecker().fields['lng'] = (db_hn[0].points[0][1], db_hn[0].id)
+                                #cetner
+                                XmlAlarmFaxChecker().fields['lat'] = (db_hn[0].center_geolocation()[0], db_hn[0].id)
+                                XmlAlarmFaxChecker().fields['lng'] = (db_hn[0].center_geolocation()[1], db_hn[0].id)
                             elif _housenumber:
                                 XmlAlarmFaxChecker().fields['streetno'] = (_housenumber, 0)
                                 XmlAlarmFaxChecker().fields['lat'] = (_streets[0].lat, 0)
@@ -285,8 +289,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
                 # z.B. 'Brand 3' = id
                 keys[k.key] = k.id
 
-            repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1, cutoff=0.8)  # default cutoff 0.6
-            #TODO FIXME <STICHWORT>Brand 3 348 BMA RV</STICHWORT> matcht nicht
+            repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1, cutoff=0.8)  # default cutoff 0.6            
             if len(repl) == 0:
                 repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1)  # try with default cutoff
             if len(repl) > 0:
@@ -294,10 +297,26 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
                 XmlAlarmFaxChecker().fields[fieldname] = (u'{}: {}'.format(k.category, k.key), k.id)
                 XmlAlarmFaxChecker().logger.debug(u'key: found "{}: {}"'.format(k.category, k.key))
                 return
+            #fix <STICHWORT>Brand 3 348 BMA RV</STICHWORT> matcht nicht
+            for k in Alarmkey.getAlarmkeys():
+                ms = "(?P<Key>(%s))[\s\d\D]*" % k.key
+                rx  = re.compile (ms)
+                logger.debug('re=%s str=%s' % (ms, _str.strip()))
+                m = rx.match (_str.strip())
+                #import pdb; pdb.set_trace()
+                if m:
+                    try:
+                        if m.group('Key') == k.key:
+                            XmlAlarmFaxChecker().fields[fieldname] = (u'{}: {}'.format(k.category, k.key), k.id)
+                            XmlAlarmFaxChecker().logger.debug(u'key: found "{}: {}"'.format(k.category, k.key))
+                            return
+                    except IndexError:
+                        pass
             XmlAlarmFaxChecker().logger.info(u'key: "{}" not found in alarmkeys'.format(_str))
             XmlAlarmFaxChecker().fields[fieldname] = (_str, 0)
         except:
-            XmlAlarmFaxChecker().logger.error(u'key: error in key evaluation')
+            
+            XmlAlarmFaxChecker().logger.error(u'key: error in key evaluation traceback\n%s' % traceback.format_exc())
         finally:
             return
 

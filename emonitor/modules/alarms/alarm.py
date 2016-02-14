@@ -657,10 +657,12 @@ class Alarm(db.Model):
                 # new
                 hn = alarm.street.getHouseNumber(number=alarm_fields['streetno'][0])
                 if hn:
+                    import pdb; pdb.set_trace()
                     alarm.position = hn.getPosition(0)
                 else:
                     #new no housenumber found -> query webservice!
                     #import pdb; pdb.set_trace()
+                    #TODO query google maps?
                     _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
                     if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
                         alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
@@ -756,6 +758,7 @@ class Alarm(db.Model):
                                 alarm.set('k.cars1', u'{},{}'.format(alarm.get('k.cars1'), _c))
                     else:
                         #no material alarmed -> follow aao
+                        #import pdb; pdb.set_trace()
                         try:
                             alarm.material = dict(cars1=u','.join([str(c.id) for c in alarm.key.getCars1(alarm.street.city.dept)]), cars2=u','.join([str(c.id) for c in alarm.key.getCars2(alarm.street.city.dept)]), material=u','.join([str(c.id) for c in alarm.key.getMaterial(alarm.street.city.dept)]))
                         except AttributeError:
