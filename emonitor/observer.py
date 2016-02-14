@@ -13,8 +13,7 @@ OBSERVERACTIVE = 1
 ERROR_RAISED = 0
 
 FILES = []
-#todo move xml hack to settings
-INPUTFORMAT = Settings.get('ocr.inputformat', ['pdf']) + Settings.get('ocr.inputtextformat', []) + ['xml']
+INPUTFORMAT = Settings.get('ocr.inputformat', ['pdf']) + Settings.get('ocr.inputtextformat', []) + Settings.get('xml.inputformat', ['xml'])
 #INPUTFORMAT = Settings.get('ocr.inputformat', ['pdf']) + Settings.get('ocr.inputtextformat', [])
 
 
