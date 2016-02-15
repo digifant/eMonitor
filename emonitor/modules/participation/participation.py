@@ -79,7 +79,7 @@ class Participation(db.Model):
         asgt = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Person.asgt==True, Alarm.id==alarmid).count()
         normal = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Person.asgt==False, Person.platoonLeader==False, Person.groupLeader==False, Alarm.id==alarmid).count()
         rs = ('%s / %s / %s / %s' % (pl, gl, asgt, normal))
-        logger.debug ("yesXminDetailed x=%s %s" % (min,rs))
+        #logger.debug ("yesXminDetailed x=%s %s" % (min,rs))
         return rs
 
     @staticmethod
