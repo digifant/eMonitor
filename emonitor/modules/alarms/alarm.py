@@ -459,7 +459,7 @@ class Alarm(db.Model):
                 params = params.replace ('<', '&lt;')
                 params = params.replace ('>', '&gt;')
                 logger.debug ("OSM nominatim query: %s?%s" % (url,params))
-                r = requests.get('{}?{}'.format(url, params))
+                r = requests.get('{}?{}'.format(url, params), timeout=3)
                 #import pdb; pdb.set_trace()
                 _position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
             except:
@@ -494,7 +494,7 @@ class Alarm(db.Model):
                 url = url + params
                 logger.debug ("google maps geocoding api query: %s" % (url))
                 #import pdb; pdb.set_trace()
-                r = requests.get(url)
+                r = requests.get(url, timeout=3)
                 logger.debug('response: %s' % r)
                 if r.status_code == 200:
                     try:
@@ -624,7 +624,7 @@ class Alarm(db.Model):
                 params += u' {}'.format(alarm_fields['streetno'][0].split()[0])  # only first value
                 alarm.set('streetno', alarm_fields['streetno'][0])
 
-            r = requests.get(u'{}?{}'.format(url, params))
+            r = requests.get(u'{}?{}'.format(url, params), timeout=3)
             logger.debug('load address data from nomination with parameters: city=%s street=%s' % (alarm_fields['city'][0].split()[0], alarm_fields['address'][0]))
             try:
                 _position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
