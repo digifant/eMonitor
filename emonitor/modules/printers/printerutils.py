@@ -67,6 +67,10 @@ class PrintLayout:
         self.module = filename.split('.')[0]
         self.filename = '.'.join(filename.split('.')[1:])
         self.parameters = []
+        #import pdb
+        #pdb.set_trace()
+        #broken?
+        #raises ImportError: 'Import by filename is not supported.'
         env = Environment(loader=PackageLoader('emonitor.modules.{}'.format(self.module), 'templates'))
         if not current_app:
             from emonitor import app

@@ -198,6 +198,11 @@ class Alarm(db.Model):
             else:  # archive alarm now
                 logger.debug("add archive schedule now for alarmid {}".format(self.id))
                 scheduler.add_job(self.changeState, args=[self.id, 3], name="alarms_archive_{}".format(self.id))
+                
+        # test screenshot
+        if self.state == 1:
+            logger.debug("add screenshot schedule in future for alarmid {}".format(self.id))
+            scheduler.add_job(self.screenShot, run_date=datetime.datetime.now() + datetime.timedelta (seconds=10), args=[self.id], name="alarms_screenshot_{}".format(self.id))
 
     def getDepartment(self):
         if self.street.city:
@@ -370,7 +375,7 @@ class Alarm(db.Model):
             finally:
                 monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
                 #signal.send('alarm', 'changestate', newstate=1)
-                return list(set(c))
+                return list(set(c))            
 
         elif state == 2:  # close alarm
             LASTALARM = 0.0
@@ -896,4 +901,10 @@ class Alarm(db.Model):
     def getReportField(self, fieldname):
         afield = AlarmField.getAlarmFields(name=fieldname)
         print afield
+
+
+    @staticmethod
+    def screenShot (id):
+        url = 'http://localhost/monitor/3'
+        logger.debug('TODO screenshot (alarm id=%s): %s' % (id,url))
 

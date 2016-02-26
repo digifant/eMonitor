@@ -386,7 +386,11 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         if root.tag == 'ALARM':
             dt = datetime.datetime.now()
             try:
-                dt = datetime.datetime.strptime (root.attrib['time'], '%Y-%m-%d %H:%M:%S.%f')
+                xdt = datetime.datetime.strptime (root.attrib['time'], '%Y-%m-%d %H:%M:%S.%f')
+                if datetime.datetime.now() - xdt > datetime.timedelta(hours=1):
+                    logger.debug ('XML alarm time too old (%s) -> using now(%s)' % (xdt, dt))
+                else:
+                    dt = xdt
             except ValueError:
                 pass
             values['time'] = {0:dt.strftime ('%d.%m.%Y - %H:%M:%S') , 1:1}
