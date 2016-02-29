@@ -226,7 +226,8 @@ def configure_logging(app):
 
     if app.debug:
         accesslogger.propagate = False
-        file_handler = RotatingFileHandler('{}{}-access.log'.format(app.config.get('PATH_DATA'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
+        #file_handler = RotatingFileHandler('{}{}-access.log'.format(app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
+        file_handler = RotatingFileHandler('{}{}-access.log'.format(app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
         file_handler.setFormatter(formatter)
         accesslogger.addHandler(file_handler)
         app.logger.addHandler(accesslogger)
@@ -244,12 +245,14 @@ def configure_logging(app):
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
-    file_handler = RotatingFileHandler('%s%s.log' % (app.config.get('PATH_DATA'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
+    #file_handler = RotatingFileHandler('%s%s.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
+    file_handler = RotatingFileHandler('%s%s.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
     logger.addHandler(file_handler)
 
-    file_handler = RotatingFileHandler('%s%s-error.log' % (app.config.get('PATH_DATA'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
+    #file_handler = RotatingFileHandler('%s%s-error.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
+    file_handler = RotatingFileHandler('%s%s-error.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
     file_handler.setFormatter(formatter)
     file_handler.addFilter(MyFilter(logging.ERROR))
     file_handler.setLevel(logging.ERROR)
