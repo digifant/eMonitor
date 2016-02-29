@@ -1,3 +1,4 @@
+import pdb
 from collections import OrderedDict
 import re
 import traceback
@@ -13,6 +14,7 @@ from emonitor.modules.cars.car import Car
 from emonitor.modules.settings.department import Department
 from emonitor.modules.alarmkeys.alarmkey import Alarmkey
 from emonitor.modules.alarmobjects.alarmobject import AlarmObject
+from emonitor.modules.alarms.alarmtype import AlarmType
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +61,10 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         options = []
         if 'alarmtype' in params:
             alarmtype = params['alarmtype']
+        else:
+            if 'alarmtype' in XmlAlarmFaxChecker().fields:
+                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]                
+
         if 'options' in params:
             options = params['options']
 
@@ -177,6 +183,9 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         alarmtype = None
         if 'alarmtype' in params:
             alarmtype = params['alarmtype']
+        else:
+            if 'alarmtype' in XmlAlarmFaxChecker().fields:
+                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]                
 
         if _str.strip() == '':
             XmlAlarmFaxChecker().fields[fieldname] = ('', 0)
@@ -227,6 +236,10 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         options = []
         if 'alarmtype' in params:
             alarmtype = params['alarmtype']
+        else:
+            if 'alarmtype' in XmlAlarmFaxChecker().fields:
+                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]                
+
         if 'options' in params:
             options = params['options']
         _str = XmlAlarmFaxChecker().fields[fieldname][0].strip().replace(u'\r', u'').replace(u'\n', u'')

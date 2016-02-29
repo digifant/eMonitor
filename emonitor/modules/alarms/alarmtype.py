@@ -72,7 +72,7 @@ class AlarmType(db.Model):
     @staticmethod
     def getVariables():
         return Settings.get('alarms.evalfields').split('\r\n')
-
+    
     @staticmethod
     def getAlarmTypes(id=0):
         """
