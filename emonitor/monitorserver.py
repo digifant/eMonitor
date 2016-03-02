@@ -203,6 +203,7 @@ class MonitorServer():
                                 result.append({'data': data, 'from': server, 'name': socket.gethostbyaddr(server[0])[0]})
                                 MonitorLog.addLog(int(data.split('|')[0]), 1, 'income', data.split('|')[1])
                                 signal.send('monitorserver', 'clientanswer', clientid=data.split('|')[0], value=data.split('|')[1:], ip=server, name=socket.gethostbyaddr(server[0])[0])
+                                #logger.debug('receiv data=%s from=%s name=%s'% (data, server, socket.gethostbyaddr(server[0])[0]))
                             except socket.timeout:
                                 break
                             except:

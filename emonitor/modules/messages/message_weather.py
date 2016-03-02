@@ -4,6 +4,8 @@ from flask import render_template
 from emonitor.widget.monitorwidget import MonitorWidget
 from emonitor.extensions import babel
 from emonitor.modules.settings.settings import Settings
+import logging
+import traceback
 
 __all__ = ['WeatherWidget']
 
@@ -16,6 +18,14 @@ babel.gettext('Sat')
 babel.gettext('Sun')
 babel.gettext('message.weather')
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+if not 'LASTCALL' in globals():
+    LASTCALL=None
+if not 'WEATHERDATA' in globals():
+    WEATHERDATA=None
+
 
 class WeatherWidget(MonitorWidget):
     """Weather widget for monitors"""
@@ -23,7 +33,6 @@ class WeatherWidget(MonitorWidget):
     __fields__ = ['weather.location', 'weather.icons', 'weather.forecast']
     template = 'widget.message.weather.html'
     size = (5, 4)
-    lastcall = None
     data = None
 
     def __repr__(self):
@@ -51,6 +60,9 @@ class WeatherWidget(MonitorWidget):
 
         :param kwargs: list of parameters for update
         """
+        global LASTCALL
+        global WEATHERDATA
+        
         if 'message' in kwargs:
             location = kwargs['message'].attributes['weather.location']
             icons = kwargs['message'].attributes['weather.icons']
@@ -59,8 +71,8 @@ class WeatherWidget(MonitorWidget):
             location = Settings.get('messages.weather.location')
             icons = Settings.get('messages.weather.icons')
             forecast = Settings.get('messages.weather.forecast')
-
-        if not self.lastcall or datetime.datetime.now() > self.lastcall + datetime.timedelta(hours=1):
+             
+        if not LASTCALL or datetime.datetime.now() > LASTCALL + datetime.timedelta(hours=1):
             # reload data from web
             compass = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
             baseurl = "https://query.yahooapis.com/v1/public/yql?"
@@ -86,11 +98,15 @@ class WeatherWidget(MonitorWidget):
                 self.data['astronomy']['sunset'] = self.data['astronomy']['sunset'][:-3].split(':')
                 self.data['astronomy']['sunset'][0] = "%s" % (12 + int(self.data['astronomy']['sunset'][0]))
                 self.data['astronomy']['sunset'] = ':'.join(self.data['astronomy']['sunset'])
-            self.lastcall = datetime.datetime.now()
+            LASTCALL = datetime.datetime.now()
+            WEATHERDATA=self.data
+            
+            try:
+                self.data['lastBuildDate'] = datetime.datetime.strptime(self.data['lastBuildDate'][:-5], '%a, %d %b %Y %I:%M %p').strftime('%d.%m.%Y %H:%M')
+            except ValueError:
+                self.data['lastBuildDate'] = datetime.datetime.now().strftime('%d.%m.%Y %H:%M')
 
-        try:
-            self.data['lastBuildDate'] = datetime.datetime.strptime(self.data['lastBuildDate'][:-5], '%a, %d %b %Y %I:%M %p').strftime('%d.%m.%Y %H:%M')
-        except ValueError:
-            self.data['lastBuildDate'] = datetime.datetime.now().strftime('%d.%m.%Y %H:%M')
+        else:
+            self.data = WEATHERDATA
         kwargs.update({'location': location, 'icons': icons, 'forecast': forecast, 'data': self.data})
         self.params = kwargs
