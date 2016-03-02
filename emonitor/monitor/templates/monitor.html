@@ -17,7 +17,7 @@
         <script type="text/javascript" language="javascript" src="/js/jquery-ui-1.10.1.min.js"> </script>
         <script type="text/javascript" language="javascript" src="/js/jquery.layout.min.js"> </script>
     </head>
-    <body>
+    <body onload="JavaScript:TimedRefresh(10000);">
         {{ content|safe }}
         {%- if footer == 1 %}
             <div class="footer">
@@ -39,6 +39,10 @@
                 var minute  = zeroPad(now.getMinutes(),2);
                 var second = zeroPad(now.getSeconds(),2);
                 $('#time').html(now.getHours()+":"+minute+":"+second);
+            }
+            
+            function TimedRefresh( t ) {
+                setTimeout("location.reload(true);", t);
             }
 
             timestring();
