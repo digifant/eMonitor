@@ -55,7 +55,14 @@
             var websocket = new WebSocket(new_uri);
             websocket.onopen    = function (evt) { console.log("Connected to WebSocket server."); };
             websocket.onclose   = function (evt) { console.log("Disconnected"); };
-            websocket.onmessage = function (evt) { console.log('got Message: ' + evt.data); };
+            websocket.onmessage = function (evt) { 
+                                    console.log('got Message: ' + evt.data);
+                                    var json_obj = $.parseJSON(evt.data)
+                                    if (json_obj["command"]== "reload") { 
+                                        console.log('reload command');  
+                                        websocket.close(); location.reload(true); 
+                                    } 
+                                  };
             websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); };
             
             function TimedRefresh( t ) {
