@@ -108,3 +108,11 @@ class PlaceholderWidget(MonitorWidget):
 
     def addParameters(self, **kwargs):
         self.params.update(kwargs)
+
+class ImageWidget(MonitorWidget):
+    """this widget displays an image"""
+    template = 'widget.image.html'
+    size = (1, 1)
+
+    def addParameters(self, **kwargs):
+        self.params.update(kwargs)

@@ -3,7 +3,7 @@ from flask import send_from_directory
 from emonitor.socketserver import SocketHandler
 from emonitor.extensions import babel, signal
 from emonitor.utils import Module
-from emonitor.modules.monitors.monitor import Monitor, PlaceholderWidget
+from emonitor.modules.monitors.monitor import Monitor, PlaceholderWidget, ImageWidget
 from emonitor.modules.monitors.monitorlayout import MonitorLayout
 from emonitor.modules.monitors.content_admin import getAdminContent, getAdminData
 from emonitor.modules.monitors.content_frontend import getFrontendData
@@ -26,7 +26,7 @@ class MonitorsModule(Module):
 
         # subnavigation
         self.adminsubnavigation = [('/admin/monitors', 'monitors.definition'), ('/admin/monitors/style', 'module.monitors.style'), ('/admin/monitors/current', 'module.monitors.current'), ('/admin/monitors/actions', 'module.monitors.actions')]
-        self.widgets = [PlaceholderWidget('placeholder')]
+        self.widgets = [PlaceholderWidget('placeholder'), ImageWidget('image')]
 
         signal.connect('monitorserver', 'clientsearchdone', frontendMonitorHandler.handleClientSearch)
         signal.connect('monitorserver', 'clientanswer', frontendMonitorHandler.handleClientAnswer)
