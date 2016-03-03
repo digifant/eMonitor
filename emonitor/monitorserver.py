@@ -8,11 +8,12 @@ import traceback
 import random
 import logging
 import urllib
+import json
 from emonitor.extensions import db, events, signal
 from emonitor.modules.events.eventhandler import Eventhandler
 from emonitor.modules.monitors.monitor import Monitor, MonitorLayout
 from emonitor.modules.alarms.alarm import Alarm
-
+from emonitor.socketserver import SocketHandler
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
@@ -65,6 +66,7 @@ class MonitorServer():
 
         elif operation == "reset":  # reset monitor
             _parameters = 'http://{}:{}/monitor/{{}}'.format(self.host, self.port)
+            SocketHandler.send_message ( json.dumps({'command':'reload'}) )
         elif operation == "execute":  # run script
             _parameters = _parameters
 

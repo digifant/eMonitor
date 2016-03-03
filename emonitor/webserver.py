@@ -39,7 +39,7 @@ def webserver(app):
 
     WebSocketPlugin(cherrypy.engine).subscribe()
     cherrypy.tools.websocket = WebSocketTool()
-    cherrypy.tree.mount(Root(), '/ws', config={'/': {'tools.websocket.on': True, 'tools.trailing_slash.on': False, 'tools.websocket.handler_cls': SocketHandler}})
+    cherrypy.tree.mount(Root(), '/ws', config={'/': {'tools.websocket.on': True, 'tools.trailing_slash.on': False, 'tools.websocket.on': True, 'tools.websocket.handler_cls': SocketHandler}})
     cherrypy.server.subscribe()
 
     # Start the CherryPy WSGI web server

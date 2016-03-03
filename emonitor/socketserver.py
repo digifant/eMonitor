@@ -1,7 +1,12 @@
 from ws4py.websocket import WebSocket
 import json
+import logging
 
-SUBSCRIBERS = set()  # set holds all active connections
+logger = logging.getLogger(__name__)
+logger.setLevel (logging.DEBUG)
+
+if not 'SUBSCRIBERS' in globals():
+    SUBSCRIBERS = set()  # set holds all active connections
 
 
 class SocketHandler(WebSocket):
@@ -10,13 +15,18 @@ class SocketHandler(WebSocket):
     """
     def __init__(self, *args, **kw):
         WebSocket.__init__(self, *args, **kw)
+        global SUBSCRIBERS
         SUBSCRIBERS.add(self)
+        logger.debug('SocketHandler __init__ subscriber set=%s' % SUBSCRIBERS )
 
     def closed(self, code, reason=None):
+        global SUBSCRIBERS
         SUBSCRIBERS.remove(self)
 
     @staticmethod
     def send_message(payload, **extra):
+        global SUBSCRIBERS
+        logger.debug('SocketHandler send message=%s' % payload )
         if extra:
             extra['sender'] = payload
             payload = json.dumps(extra)
@@ -24,5 +34,7 @@ class SocketHandler(WebSocket):
             subscriber.send(payload)
 
     def received_message(self, message):
+        global SUBSCRIBERS
+        logger.debug('SocketHandler received message=%s' % message )
         for subscr in SUBSCRIBERS:
             subscr.send(message.data, message.is_binary)
