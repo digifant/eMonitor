@@ -18,13 +18,13 @@
             {%- endif %}
         </div>
 
-            <div id="wind" style="padding-top:30px;">
+            <div id="wind" style="padding-top:0px;">
                 {{ data['wind']['speed'] }} {{ data['units']['speed'] }} {{ data['wind']['directionstring'] }}<br/>
                 <small>
                     {{ _('messages.weather.humidity') }}: {{ data['atmosphere']['humidity'] }}%<br/>
                     {{ _('messages.weather.pressure') }}: {{ data['atmosphere']['pressure'] }} hPa
                 </small>
-                
+
             <div style="text-align: center; font-size:4em">
                 <i class="icon-t1"></i> {{ data['item']['condition']['temp'] }}&deg;{{ data['units']['temperature'] }}
             </div>
