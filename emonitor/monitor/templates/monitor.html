@@ -54,19 +54,7 @@
             }
             ws_uri += "//" + loc.host + "/ws";
             var websocket;            
-            //new_uri += loc.pathname + "/ws";
-//             var websocket = new WebSocket(ws_uri);
-//             websocket.onopen    = function (evt) { console.log("Connected to WebSocket server."); document.getElementById("footermesg").innerHTML = "WS connected"; };
-//             websocket.onclose   = function (evt) { console.log("Disconnected"); document.getElementById("footermesg").innerHTML = "WS closed";};
-//             websocket.onmessage = function (evt) { 
-//                                     console.log('got Message: ' + evt.data);
-//                                     var json_obj = $.parseJSON(evt.data)
-//                                     if (json_obj["command"]== "reload") { 
-//                                         console.log('reload command');  
-//                                         websocket.close(); location.reload(true); 
-//                                     } 
-//                                   };
-//             websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); document.getElementById("footermesg").innerHTML = "WS error occured"; };           
+          
             function TimedRefresh(t) {
                 setTimeout("websocket.close(); location.reload(true);", t);
             }
