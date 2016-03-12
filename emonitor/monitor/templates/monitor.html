@@ -23,6 +23,7 @@
             <div class="footer">
                 <div class="versiontext">
                     <small style="color:#ababab">{{ app_name }} <span>{{ app_version }}</span></small>
+                    <small id="footermesg" style="color:#ababab"></small>
                 </div>
                 <div class="time" id="time"> </div>
             </div>
@@ -44,18 +45,39 @@
             timestring();
             setInterval('timestring()', 1000);
             
-            var loc = window.location, new_uri;
-            if (loc.protocol === "https:") {
-                new_uri = "wss:";
+            var loc = window.location;
+            var ws_uri;
+            if (loc.protocol == "https:") {
+                ws_uri = "wss:";
             } else {
-                new_uri = "ws:";
+                ws_uri = "ws:";
             }
-            new_uri += "//" + loc.host + "/ws";
+            ws_uri += "//" + loc.host + "/ws";
+            var websocket;            
             //new_uri += loc.pathname + "/ws";
-            var websocket = new WebSocket(new_uri);
-            websocket.onopen    = function (evt) { console.log("Connected to WebSocket server."); };
-            websocket.onclose   = function (evt) { console.log("Disconnected"); };
-            websocket.onmessage = function (evt) { 
+//             var websocket = new WebSocket(ws_uri);
+//             websocket.onopen    = function (evt) { console.log("Connected to WebSocket server."); document.getElementById("footermesg").innerHTML = "WS connected"; };
+//             websocket.onclose   = function (evt) { console.log("Disconnected"); document.getElementById("footermesg").innerHTML = "WS closed";};
+//             websocket.onmessage = function (evt) { 
+//                                     console.log('got Message: ' + evt.data);
+//                                     var json_obj = $.parseJSON(evt.data)
+//                                     if (json_obj["command"]== "reload") { 
+//                                         console.log('reload command');  
+//                                         websocket.close(); location.reload(true); 
+//                                     } 
+//                                   };
+//             websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); document.getElementById("footermesg").innerHTML = "WS error occured"; };           
+            function TimedRefresh(t) {
+                setTimeout("websocket.close(); location.reload(true);", t);
+            }
+
+            function ConnectWs () {
+                if ( (websocket == undefined) || (websocket.readyState > 2)  ) {
+                    console.log (websocket);
+                    websocket = new WebSocket (ws_uri);
+                    websocket.onopen    = function (evt) { console.log("Connected to WebSocket server."); document.getElementById("footermesg").innerHTML = "WS connected"; };
+                    websocket.onclose   = function (evt) { console.log("Disconnected"); document.getElementById("footermesg").innerHTML = "WS closed";};
+                    websocket.onmessage = function (evt) { 
                                     console.log('got Message: ' + evt.data);
                                     var json_obj = $.parseJSON(evt.data)
                                     if (json_obj["command"]== "reload") { 
@@ -63,12 +85,12 @@
                                         websocket.close(); location.reload(true); 
                                     } 
                                   };
-            websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); };
-            
-            function TimedRefresh( t ) {
-                setTimeout("websocket.close(); location.reload(true);", t);
+                    websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); document.getElementById("footermesg").innerHTML = "WS error occured"; };
+                } 
             }
 
+            ConnectWs ();
+            var timer = setInterval (ConnectWs, 10000);
         </script>
         {%- if activecount>1 %}
         <div id="activecount">
