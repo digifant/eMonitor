@@ -1,13 +1,20 @@
 {%- from 'cars.macro.html' import carname with context -%}
 <style>
     {%- if layout.monitor.orientation == 0 %} {# landscape mode #}
-    div#car1, div#car2, div#material{border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:19%;}
+    @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (max-device-width : 1280px) {
+        div#car1, div#car2, div#material{border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:2px 5px;width:19%;font-size:0.6em;}
+        div#alarm_cars div.label{color:#696969;font-size:12px;position:absolute;top:0;left:20px;display:none;}
+    }
+     @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (min-device-width : 1281px) {
+        div#car1, div#car2, div#material{border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:19%;}
+        div#alarm_cars div.label{color:#696969;font-size:12px;position:absolute;top:0;left:20px;}
+    }
     {%- else %} {#  portrait mode #}
     div#car1, div#car2, div#material{border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:90%;}
+    div#alarm_cars div.label{color:#696969;font-size:12px;position:absolute;top:0;left:20px;}
     {%- endif %}
     div#alarm_cars{position:relative;padding-top:8px;}
     div#alarm_cars1, div#alarm_cars2, div#alarm_material{display:block;overflow:hidden;padding:5px 0; position:relative;}
-    div#alarm_cars div.label{color:#696969;font-size:12px;position:absolute;top:0;left:20px;}
 </style>
 {%- if alarm %}
 <div id="alarm_cars">
