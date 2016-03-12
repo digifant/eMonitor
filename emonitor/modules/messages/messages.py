@@ -2,6 +2,7 @@ import yaml
 import datetime
 import pytz
 import logging
+import traceback
 from sqlalchemy.exc import OperationalError
 from emonitor.extensions import db, scheduler, monitorserver
 from messageutils import calcNextStateChange, MessageTrigger
@@ -175,6 +176,13 @@ class Messages(db.Model):
             return Messages.query.filter(Messages.state > 0).filter(Messages.startdate <= datetime.datetime.now()).filter(Messages.enddate >= datetime.datetime.now()).order_by(Messages.startdate.asc()).all()
         except OperationalError:
             return []
+        except AttributeError:            
+            logger.warn ("something overwrites global datetime with null (None) object!")
+            logger.warn ("however I dont find such a line in the code; maybe its on one of the python modules?")
+            logger.warn ("hotfix: return empty list!")
+            logger.warn (traceback.format_exc())
+            return []
+            
 
     @staticmethod
     def initMessageTrigger():

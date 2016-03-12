@@ -50,7 +50,7 @@ def getAdminContent(self, **params):
             p._person = request.form.get('edit_person')
             p._dept = request.form.get('edit_department')
             #p.datetime = request.form.get('edit_datetime')
-            p.datetime = datetime.datetime.now()
+            p.timestamp = datetime.datetime.now()
             db.session.commit()
             signal.send('alarm', 'updated', alarmid=p._alarm)
             monitorserver.sendMessage('0', 'reset')  # refresh monitor layout

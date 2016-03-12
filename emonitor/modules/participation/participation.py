@@ -29,7 +29,7 @@ class Participation(db.Model):
     _dept = db.Column('dept', db.ForeignKey('departments.id'))
     dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
     #dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
-    datetime = db.Column('datetime', db.DateTime)
+    timestamp = db.Column('timestamp', db.DateTime)
     
     def __init__(self, alarm, person, dept=1, participation=0, active=1, dt=''):
         self.participation = participation
@@ -38,9 +38,9 @@ class Participation(db.Model):
         self._person = person
         self._dept = dept
         if dt == '':
-            self.datetime = datetime.datetime.now()    
+            self.timestamp = datetime.datetime.now()    
         else:
-            self.datetime = dt   
+            self.timestamp = dt   
         
     def getColor(self):
         """
@@ -60,7 +60,7 @@ class Participation(db.Model):
         return "#a79c9c"
         
     def __str__(self):
-        return "Participation id=%s active=%s participation=%s datetime=%s person=%s alarm=%s dept=%s" % (self.id, self.active, self.participation, self.datetime, self._person, self._alarm, self._dept)
+        return "Participation id=%s active=%s participation=%s timestamp=%s person=%s alarm=%s dept=%s" % (self.id, self.active, self.participation, self.timestamp, self._person, self._alarm, self._dept)
         #return "todo implement me!"
 
     @staticmethod

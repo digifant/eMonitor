@@ -57,7 +57,7 @@ class ParticipationModule(object, Module):
                 for p in pl:
                     m={}
                     m['id']=p.id
-                    m['datetime']=p.datetime
+                    m['timestamp']=p.timestamp
                     m['alarm']=p._alarm
                     m['person']=p._person
                     m['dept']=p._person
@@ -80,7 +80,7 @@ class ParticipationModule(object, Module):
                     for p in part:
                         logger.info("active participation: %s updated to %s" % (p,request.json['participation']))
                         p.participation = request.json['participation']
-                        p.datetime = datetime.datetime.now()
+                        p.timestamp = datetime.datetime.now()
                         db.session.commit()
                 else:
                     #create new
