@@ -1,21 +1,21 @@
 <div id="streets_widget">
     {%- if alarm %}
     <style scoped="">
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (max-device-width : 1280px) {
+        @media screen and (min-resolution:0.75dppx) and  (max-device-width : 1280px) {
             div#streets_widget{position:relative;height:100%}
             div#streets_widget #street{margin-left:2px;font-size:2em}
             div#streets_widget #street2{margin-left:2px;font-size:2em}
             div#streets_widget #city{position:relative;font-size:2em;margin-left:2px;padding-top:0px}
             div#streets_widget div.label{color:#696969;font-size:12px;position:relative;top:0;left:2px; }
         }
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (min-device-width : 1281px) {
+        @media screen and (min-resolution:0.75dppx) and  (min-device-width : 1281px) {
             div#streets_widget{position:relative;height:100%}
             div#streets_widget #street{margin-left:20px;font-size:3em}
             div#streets_widget #street2{margin-left:20px;font-size:2em}
             div#streets_widget #city{position:relative;font-size:2em;margin:40px 0 2px 20px;padding-top:5px}
-            div#streets_widget div.label{color:#696969;font-size:12px;position:absolute;top:0;left:20px}    
+            div#streets_widget div.label{color:#696969;font-size:12px;position:absolute;top:0;left:20px}
         }
-        
+
     </style>
     <div class="street" id="street">
         <div class="label">{{ _('alarms.address') }}:</div>

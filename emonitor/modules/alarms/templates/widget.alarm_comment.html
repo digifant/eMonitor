@@ -1,12 +1,12 @@
 <div id="alarm_comment_widget">
     {%- if alarm %}
     <style scoped="scoped">
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (max-device-width : 1280px) {
+        @media screen and (min-resolution:0.75dppx) and  (max-device-width : 1280px) {
             div#alarm_comment_widget{position:relative;width:100%;top:0;margin:0;padding:0;overflow:visible}
             div.monitor_alarm_comment{font-size:2.0vem;padding:0px 2px}
             div.monitor_alarm_comment div.label{color:#696969;font-size:12px;position:relative;top:0;left:2px}
         }
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (min-device-width : 1281px) {
+        @media screen and (min-resolution:0.75dppx) and  (min-device-width : 1281px) {
             div#alarm_comment_widget{position:relative;width:100%;top:0;margin:0;padding:0;overflow:visible}
             div.monitor_alarm_comment{font-size:2.0vem;padding:10px 20px}
             div.monitor_alarm_comment div.label{color:#696969;font-size:12px;position:absolute;top:0;left:20px}

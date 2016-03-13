@@ -13,25 +13,25 @@
     <style scoped="scoped">
         div#alarm_widget{position:relative;width:100%;top:0;margin:0;padding:0;}
         {%- if layout.monitor.orientation == 0 %} {# landscape mode #}
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (max-device-width : 1280px) {
+        @media screen and (min-resolution:0.75dppx) and  (max-device-width : 1280px) {
             div#alarm_widget div.monitor_alarm_key{font-size:2.5em;padding:5px 2px;white-space:nowrap;}
         }
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (min-device-width : 1281px) {
+        @media screen and (min-resolution:0.75dppx) and  (min-device-width : 1281px) {
             div#alarm_widget div.monitor_alarm_key{font-size:2.5em;padding:30px 20px;white-space:nowrap;}
         }
         {%- else %} {# portrait mode #}
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (max-device-width : 1280px) {
+        @media screen and (min-resolution:0.75dppx) and  (max-device-width : 1280px) {
             div#alarm_widget div.monitor_alarm_key{font-size:2.5em;padding:5px 2px;}
         }
-        @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (min-device-width : 1281px) {
+        @media screen and (min-resolution:0.75dppx) and  (min-device-width : 1281px) {
             div#alarm_widget div.monitor_alarm_key{font-size:2.5em;padding:30px 20px;}
         }
-        
+
         div#alarm_key_category, div#alarm_key_key{white-space: normal!important;}
         {%- endif %}
     </style>
     <div class="monitor_alarm_key">
-        <!-- <span id="alarm_key_category">{{ alarmcategory }}{% if alarmcategory!='' %}: {% endif %}</span> --> <!-- cat / key redundant --> 
+        <!-- <span id="alarm_key_category">{{ alarmcategory }}{% if alarmcategory!='' %}: {% endif %}</span> --> <!-- cat / key redundant -->
         <span id="alarm_key_key">{{  alarmkey }}</span>
         {%- if alarmbject!="" %}
             <br/><span class="alarm_object">{%- if alarm.object and alarm.object.alarmplan not in ['', ' ', None] %}{{ alarm.object.alarmplan }}&nbsp;{%- endif %}{{ alarmobject }}</span>

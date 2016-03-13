@@ -1,11 +1,11 @@
 <style>
     {%- if layout.monitor.orientation == 0 %} {# landscape mode #}
-    @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (max-device-width : 1280px) {
+    @media screen and (min-resolution:0.75dppx) and  (max-device-width : 1280px) {
         div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:1px 1px;width:20%;font-size:0.75em;}
         div.label {color:#696969;font-size:12px;position:absolute;top:0;left:2px;display:none;}
         div#alarm_participation{position:relative;padding-top:1px;}
     }
-    @media screen and (-webkit-min-device-pixel-ratio:0.75) and  (min-device-width : 1281px) {
+    @media screen and (min-resolution:0.75dppx) and  (min-device-width : 1281px) {
         div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:24%;}
         div.label {color:#696969;font-size:12px;position:absolute;top:0;left:20px;}
         div#alarm_participation{position:relative;padding-top:8px;}
@@ -21,7 +21,7 @@
     div#pno {background-color:red; color:black; width: 13%}
     div#pmaybe {background-color:yellow; color:black}
     div#punknown {background-color:grey; color:black}
-    div#alarm_p, {display:block;overflow:hidden;padding:5px 0; position:relative;}    
+    div#alarm_p, {display:block;overflow:hidden;padding:5px 0; position:relative;}
 </style>
 {%- if alarm %}
 <div id="alarm_participation">
