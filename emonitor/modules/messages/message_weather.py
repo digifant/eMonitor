@@ -62,7 +62,7 @@ class WeatherWidget(MonitorWidget):
         """
         global LASTCALL
         global WEATHERDATA
-        
+
         if 'message' in kwargs:
             location = kwargs['message'].attributes['weather.location']
             icons = kwargs['message'].attributes['weather.icons']
@@ -71,41 +71,51 @@ class WeatherWidget(MonitorWidget):
             location = Settings.get('messages.weather.location')
             icons = Settings.get('messages.weather.icons')
             forecast = Settings.get('messages.weather.forecast')
-             
+
         if not LASTCALL or datetime.datetime.now() > LASTCALL + datetime.timedelta(hours=1):
-            # reload data from web
-            compass = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
-            baseurl = "https://query.yahooapis.com/v1/public/yql?"
-            yql_query = u'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="{}") and u="c"'.format(location).encode('utf-8')
-            yql_url = baseurl + urllib.urlencode({'q': yql_query}) + "&format=json"
             try:
-                result = urllib2.urlopen(yql_url).read()
-                self.data = json.loads(result)
-                self.data = self.data['query']['results']['channel']
-            except urllib2.URLError:
+                # reload data from web
+                compass = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
+                baseurl = "https://query.yahooapis.com/v1/public/yql?"
+                yql_query = u'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="{}") and u="c"'.format(location).encode('utf-8')
+                yql_url = baseurl + urllib.urlencode({'q': yql_query}) + "&format=json"
+                try:
+                    result = urllib2.urlopen(yql_url).read()
+                    self.data = json.loads(result)
+                    self.data = self.data['query']['results']['channel']
+                except (urllib2.URLError, TypeError):
+                    logger.warn(traceback.format_exc())
+                    logger.warn("query url: %s" % yql_url )
+                    self.data = {}
+                try:
+                    self.data['wind']['directionstring'] = compass[int(int(self.data['wind']['direction']) / 22.5)]
+                except (ValueError, KeyError) as e:
+                    self.data['wind'] = {}
+                    self.data['wind']['directionstring'] = ""
+
+                if 'astronomy' not in self.data:
+                    self.data['astronomy'] = {'sunrise': {}, 'sunset': {}}
+                if 'am' in self.data['astronomy']['sunrise']:
+                    self.data['astronomy']['sunrise'] = self.data['astronomy']['sunrise'][:-3]
+                if 'pm' in self.data['astronomy']['sunset']:
+                    self.data['astronomy']['sunset'] = self.data['astronomy']['sunset'][:-3].split(':')
+                    self.data['astronomy']['sunset'][0] = "%s" % (12 + int(self.data['astronomy']['sunset'][0]))
+                    self.data['astronomy']['sunset'] = ':'.join(self.data['astronomy']['sunset'])
+                LASTCALL = datetime.datetime.now()
+                WEATHERDATA=self.data
+
+                try:
+                    self.data['lastBuildDate'] = datetime.datetime.strptime(self.data['lastBuildDate'][:-5], '%a, %d %b %Y %I:%M %p').strftime('%d.%m.%Y %H:%M')
+                except (ValueError, KeyError):
+                    self.data['lastBuildDate'] = datetime.datetime.now().strftime('%d.%m.%Y %H:%M')
+            except:
+                logger.error (traceback.format_exc())
                 self.data = {}
-            try:
-                self.data['wind']['directionstring'] = compass[int(int(self.data['wind']['direction']) / 22.5)]
-            except (KeyError, ValueError):
                 self.data['wind'] = {}
                 self.data['wind']['directionstring'] = ""
-
-            if 'astronomy' not in self.data:
                 self.data['astronomy'] = {'sunrise': {}, 'sunset': {}}
-            if 'am' in self.data['astronomy']['sunrise']:
-                self.data['astronomy']['sunrise'] = self.data['astronomy']['sunrise'][:-3]
-            if 'pm' in self.data['astronomy']['sunset']:
-                self.data['astronomy']['sunset'] = self.data['astronomy']['sunset'][:-3].split(':')
-                self.data['astronomy']['sunset'][0] = "%s" % (12 + int(self.data['astronomy']['sunset'][0]))
-                self.data['astronomy']['sunset'] = ':'.join(self.data['astronomy']['sunset'])
-            LASTCALL = datetime.datetime.now()
-            WEATHERDATA=self.data
-            
-            try:
-                self.data['lastBuildDate'] = datetime.datetime.strptime(self.data['lastBuildDate'][:-5], '%a, %d %b %Y %I:%M %p').strftime('%d.%m.%Y %H:%M')
-            except ValueError:
-                self.data['lastBuildDate'] = datetime.datetime.now().strftime('%d.%m.%Y %H:%M')
-
+                LASTCALL = None
+                WEATHERDATA = None
         else:
             self.data = WEATHERDATA
         kwargs.update({'location': location, 'icons': icons, 'forecast': forecast, 'data': self.data})
