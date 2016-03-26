@@ -85,7 +85,7 @@
     #message_weather #currently { margin: 0 20px; text-align:right;}
     #message_weather #wind { margin: 0 auto; text-align:right; }
     #message_weather #forecast{border-left:1px solid #fff; float:right; width:38%;margin-top:20px;margin-bottom:50px;}
-    #message_weather #forecast_data {margin:30px 0 0 10px; overflow:visible;text-align:right; padding:10px;white-space: nowrap;}
+    #message_weather #forecast_data {margin:30px 0 0 10px; overflow:visible;text-align:right; padding:10px;white-space: nowrap;font-size:80%;}
     #message_weather #forecast p{white-space: nowrap; margin-top:10px;margin-bottom:10px; }
     #message_weather #astronomy{position:fixed; left:10px;bottom:10px;text-align:left}
     #message_weather #bottom{left:0;bottom:-50px;right:20px;position:absolute;}
