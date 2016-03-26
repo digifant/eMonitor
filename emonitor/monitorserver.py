@@ -17,6 +17,7 @@ from emonitor.socketserver import SocketHandler
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
+#logger.setLevel(logging.DEBUG)
 
 
 class MonitorServer():
@@ -54,6 +55,8 @@ class MonitorServer():
 
     def sendMessage(self, clientid, operation, **parameters):
         _parameters = urllib.urlencode(parameters)
+        
+        logger.debug("sendMessage %s %s"  % (clientid, operation))
 
         if len(_parameters) > 0:
             _parameters = '?{}'.format(_parameters)
@@ -64,7 +67,7 @@ class MonitorServer():
             else:
                 _parameters = 'http://{}:{}/monitor/{{}}{}'.format(self.host, self.port, _parameters)
 
-        elif operation == "reset":  # reset monitor
+        elif operation == "reset" or operation == "initneed":  # reset monitor
             _parameters = 'http://{}:{}/monitor/{{}}'.format(self.host, self.port)
             SocketHandler.send_message ( json.dumps({'command':'reload'}) )
         elif operation == "execute":  # run script
@@ -205,7 +208,7 @@ class MonitorServer():
                                 result.append({'data': data, 'from': server, 'name': socket.gethostbyaddr(server[0])[0]})
                                 MonitorLog.addLog(int(data.split('|')[0]), 1, 'income', data.split('|')[1])
                                 signal.send('monitorserver', 'clientanswer', clientid=data.split('|')[0], value=data.split('|')[1:], ip=server, name=socket.gethostbyaddr(server[0])[0])
-                                #logger.debug('receiv data=%s from=%s name=%s'% (data, server, socket.gethostbyaddr(server[0])[0]))
+                                logger.debug('receiv data=%s from=%s name=%s'% (data, server, socket.gethostbyaddr(server[0])[0]))
                             except socket.timeout:
                                 break
                             except:

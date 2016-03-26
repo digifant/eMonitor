@@ -7,6 +7,12 @@ from emonitor.modules.monitors.monitor import Monitor, PlaceholderWidget, ImageW
 from emonitor.modules.monitors.monitorlayout import MonitorLayout
 from emonitor.modules.monitors.content_admin import getAdminContent, getAdminData
 from emonitor.modules.monitors.content_frontend import getFrontendData
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
+#logger.setLevel(logging.DEBUG)
+
 
 
 class MonitorsModule(Module):
@@ -95,5 +101,6 @@ class frontendMonitorHandler(SocketHandler):
 
     @staticmethod
     def handleClientAnswer(sender, **extra):
+        logger.debug ("handleClientAnswer %s"  % sender)
         """Deliver data from client answer"""
         SocketHandler.send_message(sender, **extra)
