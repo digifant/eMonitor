@@ -79,6 +79,8 @@ class WeatherWidget(MonitorWidget):
                 baseurl = "https://query.yahooapis.com/v1/public/yql?"
                 yql_query = u'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="{}") and u="c"'.format(location).encode('utf-8')
                 yql_url = baseurl + urllib.urlencode({'q': yql_query}) + "&format=json"
+                #https://query.yahooapis.com/v1/public/yql?q=select+%2A+from+weather.forecast+where+woeid+in+%28select+woeid+from+geo.places%281%29+where+text%3D%22Kleinblittersdorf%22%29+and+u%3D%22c%22&format=json
+                #https://developer.yahoo.com/weather/documentation.html
                 try:
                     result = urllib2.urlopen(yql_url).read()
                     self.data = json.loads(result)
@@ -92,6 +94,13 @@ class WeatherWidget(MonitorWidget):
                 except (ValueError, KeyError) as e:
                     self.data['wind'] = {}
                     self.data['wind']['directionstring'] = ""
+
+                try:
+                    if float ( self.data['atmosphere']['pressure'] ) > 1200:
+                        #bug, yahoo returns sometimes ca 33000 hPa -> set it to 0
+                        self.data['atmosphere']['pressure'] = "0"
+                except (ValueError, KeyError) as e:
+                        self.data['atmosphere']['pressure'] = "0"
 
                 if 'astronomy' not in self.data:
                     self.data['astronomy'] = {'sunrise': {}, 'sunset': {}}
