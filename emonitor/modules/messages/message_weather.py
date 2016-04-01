@@ -100,7 +100,7 @@ class WeatherWidget(MonitorWidget):
                         #bug, yahoo returns sometimes ca 33000 hPa -> set it to 0
                         self.data['atmosphere']['pressure'] = "0"
                 except (ValueError, KeyError) as e:
-                        self.data['atmosphere']['pressure'] = "0"
+			pass
 
                 if 'astronomy' not in self.data:
                     self.data['astronomy'] = {'sunrise': {}, 'sunset': {}}
