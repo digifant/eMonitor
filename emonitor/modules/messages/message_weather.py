@@ -84,11 +84,18 @@ class WeatherWidget(MonitorWidget):
                 try:
                     result = urllib2.urlopen(yql_url).read()
                     self.data = json.loads(result)
-                    self.data = self.data['query']['results']['channel']
+                    if self.data['query']['results'] != None:
+                        self.data = self.data['query']['results']['channel']
+                    else:
+                        logger.warn ("weather query returned no data! %s" % self.data)
+                        self.data = {}
+                        LASTCALL = datetime.datetime.fromtimestamp(1)
                 except (urllib2.URLError, TypeError):
                     logger.warn(traceback.format_exc())
-                    logger.warn("query url: %s" % yql_url )
+                    logger.warn("weather query failed; url: %s" % yql_url )
                     self.data = {}
+                    LASTCALL = datetime.datetime.fromtimestamp(1)
+		    
                 try:
                     self.data['wind']['directionstring'] = compass[int(int(self.data['wind']['direction']) / 22.5)]
                 except (ValueError, KeyError) as e:
@@ -100,7 +107,7 @@ class WeatherWidget(MonitorWidget):
                         #bug, yahoo returns sometimes ca 33000 hPa -> set it to 0
                         self.data['atmosphere']['pressure'] = "0"
                 except (ValueError, KeyError) as e:
-			pass
+                        pass
 
                 if 'astronomy' not in self.data:
                     self.data['astronomy'] = {'sunrise': {}, 'sunset': {}}
@@ -123,7 +130,7 @@ class WeatherWidget(MonitorWidget):
                 self.data['wind'] = {}
                 self.data['wind']['directionstring'] = ""
                 self.data['astronomy'] = {'sunrise': {}, 'sunset': {}}
-                LASTCALL = None
+                LASTCALL = datetime.datetime.fromtimestamp(1)
                 WEATHERDATA = None
         else:
             self.data = WEATHERDATA

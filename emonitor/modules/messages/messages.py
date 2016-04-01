@@ -177,10 +177,10 @@ class Messages(db.Model):
         except OperationalError:
             return []
         except AttributeError:            
-            logger.warn ("something overwrites global datetime with null (None) object!")
-            logger.warn ("however I dont find such a line in the code; maybe its on one of the python modules?")
-            logger.warn ("hotfix: return empty list!")
-            logger.warn (traceback.format_exc())
+            logger.warning ("something overwrites global datetime with null (None) object!")
+            logger.warning ("however I dont find such a line in the code; maybe its on one of the python modules?")
+            logger.warning ("hotfix: return empty list!")
+            logger.warning (traceback.format_exc())
             return []
             
 
