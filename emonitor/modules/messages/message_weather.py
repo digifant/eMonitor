@@ -19,7 +19,7 @@ babel.gettext('Sun')
 babel.gettext('message.weather')
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 if not 'LASTCALL' in globals():
     LASTCALL=None
@@ -88,6 +88,7 @@ class WeatherWidget(MonitorWidget):
                         self.data = self.data['query']['results']['channel']
                     else:
                         logger.warn ("weather query returned no data! %s" % self.data)
+                        logger.info ("query url: %s" % yql_url)
                         self.data = {}
                         LASTCALL = datetime.datetime.fromtimestamp(1)
                 except (urllib2.URLError, TypeError):
@@ -133,6 +134,7 @@ class WeatherWidget(MonitorWidget):
                 LASTCALL = datetime.datetime.fromtimestamp(1)
                 WEATHERDATA = None
         else:
+            logger.debug ("LASTCALL=%s" % LASTCALL)
             self.data = WEATHERDATA
         kwargs.update({'location': location, 'icons': icons, 'forecast': forecast, 'data': self.data})
         self.params = kwargs
