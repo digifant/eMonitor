@@ -178,7 +178,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         else:  # city not found -> use default city
             city = City.getDefaultCity()
             XmlAlarmFaxChecker().fields[fieldname] = (city.name, city.id)
-            raise
+            #raise Exception()
 
         alarmtype = None
         if 'alarmtype' in params:
@@ -292,7 +292,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             _str = XmlAlarmFaxChecker().fields[fieldname][0]
         else:  # key not found
             XmlAlarmFaxChecker().fields[fieldname] = (u'----', 0)
-            raise
+            #raise Exception()
         if _str == '':
             XmlAlarmFaxChecker().fields[fieldname] = (_str, 0)
             return
