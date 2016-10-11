@@ -11,7 +11,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 class Participation(db.Model):
-    """Car class"""
+    """Participation class"""
     __tablename__ = 'participation'
     __table_args__ = {'extend_existing': True}
 
@@ -23,14 +23,14 @@ class Participation(db.Model):
     _alarm = db.Column('alarm', db.ForeignKey('alarms.id'))
     alarm = db.relationship("Alarm", collection_class=attribute_mapped_collection('id'))
     #alarm = db.relationship('alarms')
-    
+
     _person = db.Column('person', db.ForeignKey('persons.id'))
     person = db.relationship("Person", collection_class=attribute_mapped_collection('id'))
     _dept = db.Column('dept', db.ForeignKey('departments.id'))
     dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
     #dept = db.relationship("Department", collection_class=attribute_mapped_collection('id'))
     timestamp = db.Column('timestamp', db.DateTime)
-    
+
     def __init__(self, alarm, person, dept=1, participation=0, active=1, dt=''):
         self.participation = participation
         self.active = active
@@ -38,10 +38,10 @@ class Participation(db.Model):
         self._person = person
         self._dept = dept
         if dt == '':
-            self.timestamp = datetime.datetime.now()    
+            self.timestamp = datetime.datetime.now()
         else:
-            self.timestamp = dt   
-        
+            self.timestamp = dt
+
     def getColor(self):
         """
         Get color of car, default *#ffffff*
@@ -55,22 +55,22 @@ class Participation(db.Model):
         if self.participation == 6:
                 return "#ffff00"
         if self.participation == 9:
-                return "#ff7d00"		
+                return "#ff7d00"
         #no feedback
         return "#a79c9c"
-        
+
     def __str__(self):
         return "Participation id=%s active=%s participation=%s timestamp=%s person=%s alarm=%s dept=%s" % (self.id, self.active, self.participation, self.timestamp, self._person, self._alarm, self._dept)
         #return "todo implement me!"
 
     @staticmethod
-    def yes3minDetailed(alarmid):        
+    def yes3minDetailed(alarmid):
         return Participation.yesXminDetailed(alarmid, 3)
     @staticmethod
-    def yes6minDetailed(alarmid):        
+    def yes6minDetailed(alarmid):
         return Participation.yesXminDetailed(alarmid, 6)
     @staticmethod
-    def yes9minDetailed(alarmid):        
+    def yes9minDetailed(alarmid):
         return Participation.yesXminDetailed(alarmid, 9)
     @staticmethod
     def yesXminDetailed(alarmid, min=3):
@@ -91,25 +91,25 @@ class Participation(db.Model):
     @staticmethod
     def yes9min(alarmid):
         return Participation.query.filter_by(_alarm=int(alarmid), participation=9).count()
-        
+
     @staticmethod
     def no(alarmid):
         return Participation.query.filter_by(_alarm=int(alarmid), participation=0).count()
-      
+
     @staticmethod
     def maybe(alarmid):
         return Participation.query.filter_by(_alarm=int(alarmid), participation=-1).count()
     @staticmethod
     def unknown(alarmid):
         return Participation.query.filter_by(_alarm=int(alarmid), participation=99).count()
-    
+
     def getParticipationCountYes3min (self):
         return Participation.query.filter_by(_alarm=int(self._alarm), participation=3).count()
     def getParticipationCountYes6min (self):
         return Participation.query.filter_by(_alarm=int(self._alarm), participation=6).count()
     def getParticipationCountYes9min (self):
         return Participation.query.filter_by(_alarm=int(self._alarm), participation=9).count()
-  
+
     @staticmethod
     def getParticipation(id=0, alarmid=0, qtelegramId='', params=[]):
         logger.debug ("getParticipation alarmid=%s" %alarmid)
@@ -121,7 +121,7 @@ class Participation(db.Model):
             #p = Person.getPerson(qtelegramId=qtelegramId).order_by('participation').all()
             #if p != None:
                 #return Participation.query.filter_by(_person=p.id)
-                #.filter_by(Person.telegramId=qtelegramId, Person.active=True, Alarm.active=True)                                
+                #.filter_by(Person.telegramId=qtelegramId, Person.active=True, Alarm.active=True)
             return Participation.query.join(Participation.person) \
                                       .join(Participation.alarm) \
                                       .filter (Person.telegramId==qtelegramId, Alarm.state==1)
