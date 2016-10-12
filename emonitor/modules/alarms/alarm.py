@@ -64,8 +64,8 @@ class Alarm(db.Model):
     _key = db.Column('key', db.Text)
     type = db.Column(db.Integer, default=0)
     state = db.Column(db.Integer, default=0)
-    attributes = db.relationship("AlarmAttribute", collection_class=attribute_mapped_collection('name'), cascade="all, delete-orphan")
-    history = db.relationship(AlarmHistory.__name__, backref="alarms", lazy='joined', cascade="all, delete-orphan")
+    attributes = db.relationship("AlarmAttribute", collection_class=attribute_mapped_collection('name'), cascade="all, delete, delete-orphan")
+    history = db.relationship(AlarmHistory.__name__, backref="alarms", lazy='joined', cascade="all, delete, delete-orphan")
 
     # additional properties defined in alarmutils
     endtimestamp = property(alarmutils.get_endtimestamp)
@@ -658,14 +658,21 @@ class Alarm(db.Model):
                     if _s.cityid and _s.cityid not in _c and _s.cityid == alarm_fields['city'][1]:
                         _c.append(_s.cityid)
                         alarm.street = _s
-                        #import pdb; pdb.set_trace()                        
-                        if 'object' in alarm_fields and str(alarm_fields['object'][1]) == '0':
-                            if 'lat' not in alarm_fields and 'lng' not in alarm_fields:
-                                alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom) #set street coordinates
-                                if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':  
+                        #import pdb; pdb.set_trace()
+                        if 'object' in alarm_fields:
+                            if str(alarm_fields['object'][1]) == '0':
+                              if 'lat' not in alarm_fields and 'lng' not in alarm_fields:
+                                  alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom) #set street coordinates
+                                  if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':  
                                     # set nominatim result and marker
                                     alarm.position = _position
                                     alarm.set('marker', '1')
+                            else:
+                                logger.info ("Alarmobjekt gefunden! -> nutze Koordinaten!")
+                                aoid = alarm_fields['object'][1]
+                                ao = alarm_fields['object'][0]
+                                alarm.position = dict(lat=ao.lat, lng=ao.lng, zoom=ao.zoom)
+                                alarm.set('marker', '1')
                         else:
                             #new: set street coordinates 
                             if _s.lat != u'0.0' and _s.lng != u'0.0':

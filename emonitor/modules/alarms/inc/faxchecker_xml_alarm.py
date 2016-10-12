@@ -43,6 +43,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
     sections[u'Ortsteil/Ort'] = (u'city', u'evalCity')
     sections[u'Stra\xdfe'] = (u'address', u'evalStreet')
     sections[u'Hinweis'] = (u'remark', u'')
+    sections[u'Objekt'] = (u'key', u'evalObjectBMA')
     keywords = [u'<Alarm']
     #fuer Stichworte / keys (siehe alarm.py line 524
     translations = AlarmFaxChecker.translations + [u'_bab_', u'_train_', u'_street_', u'_default_city_', u'_interchange_', u'_kilometer_', u'_train_identifier_']
@@ -356,6 +357,28 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
 
             XmlAlarmFaxChecker().fields[fieldname] = (_str, 0)
         return
+    
+    
+    @staticmethod
+    #wird mit key als fieldname aufgerufen!
+    def evalObjectBMA (fieldname, **params):
+        logger.debug("evalObjectBMA")        
+        _str = XmlAlarmFaxChecker().fields[fieldname][0].replace('\xc3\x9c'.decode('utf-8'), u'0')
+        objects = AlarmObject.getAlarmObjects()
+        #import pdb; pdb.set_trace()
+        #key suche nach BMA Nummer
+        for o in objects:
+            logger.debug("object " + str(o.id) + " / " + o.name)
+            if o.bma in _str:
+                logger.debug("Alarmobjekt %s (BMA: %s) gefunden! " % (o.name, o.bma))
+                #BMA Nummer gefunden
+                XmlAlarmFaxChecker().fields[u'object'] = (o, o.id)
+                XmlAlarmFaxChecker().logger.debug(u'object: "{}" special handling (BMA) -> {}'.format(_str, o.bma))
+                return
+        #XmlAlarmFaxChecker().fields[u'object'] = (_str, 0)
+        logger.debug("KEIN Alarmobjekt gefunden!")
+        return
+                
 
 
     def buildAlarmFromText(self, alarmtype, rawtext):
@@ -415,6 +438,8 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             except AttributeError:
                 pass
             self.fields['key'] = {0:einsatz , 1:0}
+            #incl BMA Zusatz
+            self.fields['key_untouched'] = {0:einsatz , 1:0}
 
             strasse = ''
             try:
@@ -454,6 +479,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             self.evalCity('city')
             self.evalStreet('address')
             #TODO evalObject TEST
+            self.evalObjectBMA  ('key_untouched')
 
         for k in XmlAlarmFaxChecker().fields:
             try:

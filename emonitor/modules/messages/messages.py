@@ -26,7 +26,8 @@ class Messages(db.Model):
     startdate = db.Column(db.DATETIME)
     enddate = db.Column(db.DATETIME)
     state = db.Column(db.Integer)
-    _monitors = db.Column('monitors', db.String(32))
+    #_monitors = db.Column('monitors', db.String(32))
+    monitors = db.Column('monitors', db.String(32), key="monitors")
     _type = db.Column('type', db.String(32))
     _attributes = db.Column('attributes', db.TEXT)
 

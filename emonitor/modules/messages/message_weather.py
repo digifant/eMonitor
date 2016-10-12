@@ -72,7 +72,8 @@ class WeatherWidget(MonitorWidget):
             icons = Settings.get('messages.weather.icons')
             forecast = Settings.get('messages.weather.forecast')
 
-        if not LASTCALL or datetime.datetime.now() > LASTCALL + datetime.timedelta(hours=1):
+        #if not LASTCALL or datetime.datetime.now() > LASTCALL + datetime.timedelta(hours=1):
+        if True:
             try:
                 # reload data from web
                 compass = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
@@ -89,11 +90,13 @@ class WeatherWidget(MonitorWidget):
                     else:
                         logger.warn ("weather query returned no data! %s" % self.data)
                         logger.info ("query url: %s" % yql_url)
+                        logger.info("yql: %s" % yql_query)
                         self.data = {}
                         LASTCALL = datetime.datetime.fromtimestamp(1)
                 except (urllib2.URLError, TypeError):
                     logger.warn(traceback.format_exc())
-                    logger.warn("weather query failed; url: %s" % yql_url )
+                    logger.info("weather query failed; url: %s" % yql_url )
+                    logger.info("yql: %s" % yql_query)
                     self.data = {}
                     LASTCALL = datetime.datetime.fromtimestamp(1)
 		    
