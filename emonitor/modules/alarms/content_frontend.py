@@ -150,17 +150,21 @@ def getFrontendContent(**params):
             pass
         alarm.state = -1
         alarm.updateSchedules()
-        # ENGINE IntegrityError("(_mysql_exceptions.IntegrityError) 
-        # (1451, 'Cannot delete or update a parent row: a foreign key constraint fails (`emonitor`.`alarmattributes`, 
+        # ENGINE IntegrityError("(_mysql_exceptions.IntegrityError)
+        # (1451, 'Cannot delete or update a parent row: a foreign key constraint fails (`emonitor`.`alarmattributes`,
         #CONSTRAINT `alarmattributes_ibfk_1` FOREIGN KEY (`alarm_id`) REFERENCES `alarms` (`id`))')",)
-        try:
-          db.session.delete(alarm)
-        except IntegrityError:
-            #alarmattribute werden nicht geloscht (sqlalchemy bug?) -> Holzhammer manuell loeschen!
-            print ("SQLAlchemy Bug ?!")
-            db.engine.execute(text("DELETE * FROM alarmattributes WHERE alarm_id = %s" % alarm.id))
-            db.session.delete(alarm)
+        import _mysql_exceptions
+        #try:
+        db.session.delete(alarm)
+        db.session.flush()
         db.session.commit()
+        #except  _mysql_exceptions.IntegrityError as e:
+        #    db.session.rollback()
+        #    #alarmattribute werden nicht geloscht (sqlalchemy bug?) -> Holzhammer manuell loeschen!
+        #    print ("SQLAlchemy Bug ?!")
+        #    db.engine.execute(text("DELETE * FROM alarmattributes WHERE alarm_id = %s" % alarm.id))
+        #    db.session.delete(alarm)
+        #    db.session.commit()
         if refresh:
             monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
         signal.send('alarm', 'deleted', alarmid=request.args.get('alarmid'))
@@ -206,7 +210,7 @@ def getFrontendData(self):
         return output
 
     if request.args.get('action') == 'editalarm':
-        
+
         if request.args.get('alarmid', '0') == '0':  # add new alarm
             alarm = Alarm(datetime.datetime.now(), '', 2, 0)
 

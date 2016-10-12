@@ -64,8 +64,8 @@ class Alarm(db.Model):
     _key = db.Column('key', db.Text)
     type = db.Column(db.Integer, default=0)
     state = db.Column(db.Integer, default=0)
-    attributes = db.relationship("AlarmAttribute", collection_class=attribute_mapped_collection('name'), cascade="all, delete, delete-orphan")
-    history = db.relationship(AlarmHistory.__name__, backref="alarms", lazy='joined', cascade="all, delete, delete-orphan")
+    attributes = db.relationship("AlarmAttribute", backref="alarms", collection_class=attribute_mapped_collection('name'), cascade="all, delete-orphan")
+    history = db.relationship(AlarmHistory.__name__, backref="alarms", lazy='joined', cascade="all, delete-orphan")
 
     # additional properties defined in alarmutils
     endtimestamp = property(alarmutils.get_endtimestamp)
@@ -198,7 +198,7 @@ class Alarm(db.Model):
             else:  # archive alarm now
                 logger.debug("add archive schedule now for alarmid {}".format(self.id))
                 scheduler.add_job(self.changeState, args=[self.id, 3], name="alarms_archive_{}".format(self.id))
-                
+
         # test screenshot
         if self.state == 1:
             logger.debug("add screenshot schedule in future for alarmid {}".format(self.id))
@@ -375,7 +375,7 @@ class Alarm(db.Model):
             finally:
                 monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
                 #signal.send('alarm', 'changestate', newstate=1)
-                return list(set(c))            
+                return list(set(c))
 
         elif state == 2:  # close alarm
             LASTALARM = 0.0
@@ -443,7 +443,7 @@ class Alarm(db.Model):
                         with open("%s/inc/%s.png" % (os.path.abspath(os.path.dirname(__file__)), params['filename']), 'rb') as f:
                             return f.read()
         abort(404)
-    
+
     @staticmethod
     def  queryOsmNominatim(alarm_fields=None, address='', city='', streetno=''):
         _position = dict(lat=u'0.0', lng=u'0.0')
@@ -473,8 +473,8 @@ class Alarm(db.Model):
         return _position
 
     @staticmethod
-    def  queryGoogleMapsGeocodingApi(alarm_fields=None, address='', city='', streetno=''):        
-        _position = dict(lat=u'0.0', lng=u'0.0')        
+    def  queryGoogleMapsGeocodingApi(alarm_fields=None, address='', city='', streetno=''):
+        _position = dict(lat=u'0.0', lng=u'0.0')
         if alarm_fields != None:
             if alarm_fields.has_key('streetno'):
                 streetno = alarm_fields['streetno'][0]
@@ -514,8 +514,8 @@ class Alarm(db.Model):
                         logger.debug('google geocoding query successfull: %s' % res['geometry']['location'])
                     except ValueError:
                         logger.error ('invalid json. raw response=%s\n%s' % (r.text, traceback.format_exec()))
-                
-            except:                
+
+            except:
                 logger.error(u'google geocoding query error {}\n'.format(traceback.format_exc()))
         return _position
 
@@ -534,7 +534,7 @@ class Alarm(db.Model):
 
 
         logger.debug ("handleEvent %s kwargs=%s" % (eventname, kwargs))
-        
+
         alarm_fields = dict()
         stime = time.time()
         alarmtype = None
@@ -615,7 +615,7 @@ class Alarm(db.Model):
         alarm.set('filename', kwargs['filename'])
         alarm.set('priority', '1')  # set normal priority
         alarm.set('alarmtype', alarmtype.name)  # set checker name
-        alarm.state = 1        
+        alarm.state = 1
 
         # city
         if 'city' in alarm_fields and alarm_fields['city'][1] != 0:
@@ -663,7 +663,7 @@ class Alarm(db.Model):
                             if str(alarm_fields['object'][1]) == '0':
                               if 'lat' not in alarm_fields and 'lng' not in alarm_fields:
                                   alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom) #set street coordinates
-                                  if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':  
+                                  if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
                                     # set nominatim result and marker
                                     alarm.position = _position
                                     alarm.set('marker', '1')
@@ -674,11 +674,11 @@ class Alarm(db.Model):
                                 alarm.position = dict(lat=ao.lat, lng=ao.lng, zoom=ao.zoom)
                                 alarm.set('marker', '1')
                         else:
-                            #new: set street coordinates 
+                            #new: set street coordinates
                             if _s.lat != u'0.0' and _s.lng != u'0.0':
                                 alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom)
                                 alarm.set('marker', '1')
-                                
+
             else:  # add unknown street
                 alarm.set('id.address', 0)
                 alarm.set('address', alarm_fields['address'][0])
@@ -700,8 +700,8 @@ class Alarm(db.Model):
                 if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
                     alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
                     alarm.set('marker', '1')
-                
-                
+
+
         # houseno
         if 'streetno' in alarm_fields.keys():
             alarm.set('streetno', alarm_fields['streetno'][0])
@@ -717,8 +717,8 @@ class Alarm(db.Model):
                     alarm.position = hn.getPosition(0)
                 else:
                     #no housenumber found -> query webservice!
-                    #import pdb; pdb.set_trace()                    
-                    
+                    #import pdb; pdb.set_trace()
+
                     #1.
                     # query google maps geocoding api
                     _position = Alarm.queryGoogleMapsGeocodingApi (alarm_fields=alarm_fields)
@@ -794,7 +794,7 @@ class Alarm(db.Model):
             alarm.set('remark', alarm_fields['remark'][0])
             if alarmtype.translation(u'_bma_main_') in alarm_fields['remark'][0] or alarmtype.translation(u'_bma_main_') in alarm_fields['person'][0]:
                 alarmkey = Alarmkey.query.filter(Alarmkey.key.like(u"%{}%".format(alarmtype.translation(u'_bma_')))).first()
-                if alarmkey:                    
+                if alarmkey:
                     alarm.set('id.key', alarmkey.id)
                     alarm._key = u'{}: {}'.format(alarmkey.category, alarmkey.key)
                 else:
@@ -871,7 +871,7 @@ class Alarm(db.Model):
             kwargs['time'] = []
         etime = time.time()
         kwargs['time'].append('alarm creation done in %s sec.' % (etime - stime))
-        
+
         if kwargs['mode'] != 'test':
             db.session.add(alarm)
             db.session.commit()
@@ -914,4 +914,3 @@ class Alarm(db.Model):
     def screenShot (id):
         url = 'http://localhost/monitor/3'
         logger.debug('TODO screenshot (alarm id=%s): %s' % (id,url))
-
