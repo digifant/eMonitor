@@ -64,8 +64,8 @@ class Alarm(db.Model):
     _key = db.Column('key', db.Text)
     type = db.Column(db.Integer, default=0)
     state = db.Column(db.Integer, default=0)
-    attributes = db.relationship("AlarmAttribute", backref="alarms", collection_class=attribute_mapped_collection('name'), cascade="all, delete-orphan")
-    history = db.relationship(AlarmHistory.__name__, backref="alarms", lazy='joined', cascade="all, delete-orphan")
+    attributes = db.relationship("AlarmAttribute", collection_class=attribute_mapped_collection('name'), cascade="all, delete-orphan")
+    history = db.relationship(AlarmHistory.__name__, lazy='joined', cascade="all, delete-orphan")
 
     # additional properties defined in alarmutils
     endtimestamp = property(alarmutils.get_endtimestamp)

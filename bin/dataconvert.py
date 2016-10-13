@@ -7,7 +7,7 @@ from sqlalchemy.exc import DataError, OperationalError
 
 
 def make_session(connection_string):
-    engine = create_engine(connection_string, echo=False, convert_unicode=True)
+    engine = create_engine(connection_string, echo=False, convert_unicode=True, pool_size=50, max_overflow=50)
     Session = sessionmaker(bind=engine, autoflush=False)
     return Session(), engine
 
