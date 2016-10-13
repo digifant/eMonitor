@@ -72,6 +72,10 @@ class MonitorServer():
             SocketHandler.send_message ( json.dumps({'command':'reload'}) )
         elif operation == "execute":  # run script
             _parameters = _parameters
+        elif operation == "display_off":  # display off
+            _parameters = _parameters
+        elif operation == "display_on":  # display on
+            _parameters = _parameters
 
         message = '{}|{}'.format(clientid, operation)
         if _parameters != "":

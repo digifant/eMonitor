@@ -381,6 +381,7 @@ class Alarm(db.Model):
             LASTALARM = 0.0
             alarm.updateSchedules(reference=1)  # use alarm.timestamp + delta
             monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
+            # TODO send message display of message
             signal.send('alarm', 'changestate', newstate=2)
             return []
 
