@@ -17,7 +17,8 @@ class MonitorLayout(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     mid = db.Column(db.Integer, db.ForeignKey('monitors.id'))
-    trigger = db.Column(db.String(250), default='default')
+    #trigger = db.Column(db.String(250), default='default')
+    trigger = db.Column(db.Text, default='default')
     _layout = db.Column('layout', db.Text)
     theme = db.Column(db.String(30))
     mintime = db.Column(db.Integer, default=0)
