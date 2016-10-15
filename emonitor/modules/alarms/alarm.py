@@ -345,6 +345,8 @@ class Alarm(db.Model):
         except KeyError:
             alarm.addHistory('autochangeState', 'archived')
         db.session.commit()
+        
+        logger.debug ("changeState id=%s state=%s" % (id,state))
 
         if state == 1:  # activate alarm
             c = []
@@ -374,6 +376,7 @@ class Alarm(db.Model):
                 pass
             finally:
                 monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
+                monitorserver.sendMessage('0', 'display_on') #turn all monitor on
                 #signal.send('alarm', 'changestate', newstate=1)
                 return list(set(c))
 
@@ -381,7 +384,11 @@ class Alarm(db.Model):
             LASTALARM = 0.0
             alarm.updateSchedules(reference=1)  # use alarm.timestamp + delta
             monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
-            # TODO send message display of message
+            monitorserver.sendMessage('0', 'display_off')
+            #delayed monitor off
+            #TODO fixme!
+            #scheduler.add_job(Alarm.displayOff, run_date=datetime.datetime.now() + datetime.timedelta (hours=1), args=[id])
+            #scheduler.add_job(Alarm.displayOff, run_date=datetime.datetime.now() + datetime.timedelta (seconds=30), args=[id], name="delayed_display_off")
             signal.send('alarm', 'changestate', newstate=2)
             return []
 
@@ -915,3 +922,8 @@ class Alarm(db.Model):
     def screenShot (id):
         url = 'http://localhost/monitor/3'
         logger.debug('TODO screenshot (alarm id=%s): %s' % (id,url))
+
+    @staticmethod
+    def displayOff (id):
+        monitorserver.sendMessage('0', 'display_off')
+        logger.info('turn all monitor OFF')
