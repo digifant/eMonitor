@@ -1,12 +1,16 @@
 from ws4py.websocket import WebSocket
 import json
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 logger.setLevel (logging.DEBUG)
 
 if not 'SUBSCRIBERS' in globals():
     SUBSCRIBERS = set()  # set holds all active connections
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
 
 
 class SocketHandler(WebSocket):
@@ -30,8 +34,11 @@ class SocketHandler(WebSocket):
         if extra:
             extra['sender'] = payload
             payload = json.dumps(extra)
-        for subscriber in SUBSCRIBERS:
-            subscriber.send(payload)
+        try:    
+            for subscriber in SUBSCRIBERS:
+                subscriber.send(payload)
+        except RuntimeError:
+            logger.error ( traceback.format_exc() )
 
     def received_message(self, message):
         global SUBSCRIBERS

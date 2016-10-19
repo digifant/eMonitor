@@ -2,6 +2,7 @@ import datetime
 import os
 import shutil
 import StringIO
+import logging
 from collections import Counter
 from operator import attrgetter
 from flask import current_app, render_template, request, flash, session, render_template_string, jsonify, redirect, make_response
@@ -20,6 +21,10 @@ from emonitor.modules.printers.printers import Printers
 from emonitor.modules.monitors.monitor import Monitor
 from emonitor.modules.monitors.monitorlayout import MonitorLayout
 from emonitor.frontend.frontend import frontend
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def getFrontendContent(**params):
@@ -103,6 +108,26 @@ def getFrontendContent(**params):
             alarm.set(u'lat', request.form.get('lat'))
             alarm.set(u'lng', request.form.get('lng'))
             alarm.set(u'zoom', request.form.get('zoom'))
+        else:
+            alarm_fields={}
+            alarm_fields['streetno']=[alarm.get(u'streetno')]
+            alarm_fields['city']=[alarm.get(u'city')]
+            alarm_fields['address']=[alarm.get(u'address')]
+            logger.debug("query Google Maps Geocoding Api")
+            _position = Alarm.queryGoogleMapsGeocodingApi (alarm_fields=alarm_fields)
+            #2016-10-18: query api foer manuell alarms
+            #  and not alarm.get(u'id.object') ??
+            if _position['lat'] == u'0.0' and _position['lng'] == u'0.0':
+                # 2. best
+                # query osm nominatim api -> problem: most street numbers are missing currently for our town
+                logger.debug("query OSM Nominatim Api")
+                _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
+            if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
+                logger.debug ("query successfull -> found position")
+                alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
+                alarm.set('marker', '1')
+            else:
+                logger.debug ("query failed -> position NOT FOUND")
         try:
             d = datetime.datetime.strptime('%s %s' % (request.form.get('edit_endtimestamp_date'), request.form.get('edit_endtimestamp_time')), "%d.%m.%Y %H:%M:%S")
         except ValueError:
