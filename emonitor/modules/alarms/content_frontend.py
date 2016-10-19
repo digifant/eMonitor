@@ -108,14 +108,16 @@ def getFrontendContent(**params):
             alarm.set(u'lat', request.form.get('lat'))
             alarm.set(u'lng', request.form.get('lng'))
             alarm.set(u'zoom', request.form.get('zoom'))
-        else:
+        #else:
+        #import pdb; pdb.set_trace()
+        if request.form.get('update_position') == None:
             alarm_fields={}
             alarm_fields['streetno']=[alarm.get(u'streetno')]
             alarm_fields['city']=[alarm.get(u'city')]
             alarm_fields['address']=[alarm.get(u'address')]
             logger.debug("query Google Maps Geocoding Api")
             _position = Alarm.queryGoogleMapsGeocodingApi (alarm_fields=alarm_fields)
-            #2016-10-18: query api foer manuell alarms
+            #2016-10-18: query api for manual alarms
             #  and not alarm.get(u'id.object') ??
             if _position['lat'] == u'0.0' and _position['lng'] == u'0.0':
                 # 2. best
@@ -126,8 +128,11 @@ def getFrontendContent(**params):
                 logger.debug ("query successfull -> found position")
                 alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
                 alarm.set('marker', '1')
+                #alarm.set(u'routing', '')
             else:
                 logger.debug ("query failed -> position NOT FOUND")
+        else:
+            print ("hnn... %s " % request.form.get('update_position') )
         try:
             d = datetime.datetime.strptime('%s %s' % (request.form.get('edit_endtimestamp_date'), request.form.get('edit_endtimestamp_time')), "%d.%m.%Y %H:%M:%S")
         except ValueError:
