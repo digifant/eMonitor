@@ -8,6 +8,7 @@ import yaml
 from collections import OrderedDict
 import logging
 import traceback
+import subprocess
 
 from flask import current_app, flash, render_template, abort
 from flask.templating import TemplateNotFound
@@ -720,23 +721,32 @@ class Alarm(db.Model):
                 alarm.set('id.streetno', alarm_fields['id.streetno'][1])
             else:
                 # new
-                hn = alarm.street.getHouseNumber(number=alarm_fields['streetno'][0])
-                if hn:
-                    alarm.position = hn.getPosition(0)
-                else:
-                    #no housenumber found -> query webservice!
-                    #import pdb; pdb.set_trace()
-
-                    #1.
-                    # query google maps geocoding api
-                    _position = Alarm.queryGoogleMapsGeocodingApi (alarm_fields=alarm_fields)
-                    if _position['lat'] == u'0.0' and _position['lng'] == u'0.0':
+                #hn = alarm.street.getHouseNumber(number=alarm_fields['streetno'][0])
+                #if hn:
+                #    alarm.position = hn.getPosition(0)
+                #else:
+                #    #no housenumber found -> query webservice!
+                #    #import pdb; pdb.set_trace()
+                #    #1.
+                #    # query google maps geocoding api
+                #    _position = Alarm.queryGoogleMapsGeocodingApi (alarm_fields=alarm_fields)
+                #    if _position['lat'] == u'0.0' and _position['lng'] == u'0.0':
+                #        # 2. best
+                #        # query osm nominatim api -> problem: most street numbers are missing currently for our town
+                #        _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
+                #    if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
+                #        alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
+                #        alarm.set('marker', '1')
+                # query google maps geocoding api
+                _position = Alarm.queryGoogleMapsGeocodingApi (alarm_fields=alarm_fields)
+                if _position['lat'] == u'0.0' and _position['lng'] == u'0.0':
                         # 2. best
                         # query osm nominatim api -> problem: most street numbers are missing currently for our town
                         _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
-                    if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
+                if _position['lat'] != u'0.0' and _position['lng'] != u'0.0':
                         alarm.position = dict(lat=_position['lat'], lng=_position['lng'], zoom=16)
                         alarm.set('marker', '1')
+
             if 'zoom' in alarm_fields.keys():
                 alarm.set('zoom', alarm_fields['zoom'][0])
 
@@ -921,7 +931,13 @@ class Alarm(db.Model):
     @staticmethod
     def screenShot (id):
         url = 'http://localhost/monitor/3'
-        logger.debug('TODO screenshot (alarm id=%s): %s' % (id,url))
+        logger.debug('screenshot (alarm id=%s): %s' % (id,url))
+        try:
+            screenshot_cmd = '/home/bofh/phantomjs/screenshot-and-telegram.py'
+	    p = subprocess.Popen(screenshot_cmd, preexec_fn=os.setsid)
+	    logger.info ("called screenshot script %s got pid = %s" % (screenshot_cmd, p))
+        except:
+            logger.error (traceback.format_exc())
 
     @staticmethod
     def displayOff (id):
