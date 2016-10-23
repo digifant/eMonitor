@@ -187,6 +187,7 @@ def getFrontendContent(**params):
         # (1451, 'Cannot delete or update a parent row: a foreign key constraint fails (`emonitor`.`alarmattributes`,
         #CONSTRAINT `alarmattributes_ibfk_1` FOREIGN KEY (`alarm_id`) REFERENCES `alarms` (`id`))')",)       
         db.engine.execute(db.text("DELETE FROM alarmattributes WHERE alarm_id = %s" % alarm.id))
+        db.engine.execute(db.text("DELETE FROM participation WHERE alarm = %s" % alarm.id))
         db.session.delete(alarm)
         db.session.flush()
         db.session.commit()
