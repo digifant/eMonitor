@@ -36,7 +36,11 @@
         <div class="label">{{ _('alarms.city') }}:</div>
         <div id="city">
 
+            {%- if alarm.district != '' %}
+            {{ alarm.district }} 
+            {%- else %}
             {{ alarm.city.name }}
+            {%- endif %}
             {%- if alarm.street.id != None and alarm.street.subcity %}
                 - {{  alarm.street.subcity }}
             {%- endif %}

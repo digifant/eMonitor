@@ -150,6 +150,18 @@ def set_city(self, city):  # set city parameters from object
         self.set('id.city', '')
         self.set('city', '')
 
+def get_district(self):
+    return self.get('district', 'Kleinblittersdorf')
+
+def set_district(self, district):
+    self.set('district', district)
+
+def get_original(self):
+    return self.get('original', '')
+
+def set_original(self, original):
+    self.set('original', original)
+
 
 def get_person(self):  # deliver person string
     return self.get('person', '')

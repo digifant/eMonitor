@@ -453,11 +453,13 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
                 ortsteil = root.find('ORTSTEIL').text
             except AttributeError:
                 pass
+            self.fields['district'] = { 0:ortsteil , 1:0 }
+            
             gemeinde = ''
             try:
                 gemeinde = root.find('GEMEINDE').text
             except AttributeError:
-                pass
+                pass            
             self.fields['city'] = { 0:gemeinde , 1:1 }
 
             landkreis = ''
@@ -474,6 +476,16 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             self.fields['remark'] = {0:hinweis, 1:0}
             #BMA verantwortlicher
             self.fields['person'] = {0:hinweis, 1:0}
+
+            original = ''
+            try:
+                original = root.find('ORIGINAL').text
+                original = original.replace ('&lt;', '<')
+                original = original.replace ('&gt;', '>')
+                original = original.replace ('&amp;', '')
+            except AttributeError:
+                pass
+            self.fields['original'] = {0:original, 1:0}
 
             self.evalKey ('key')
             self.evalCity('city')

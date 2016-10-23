@@ -74,6 +74,8 @@ class Alarm(db.Model):
     cars2 = property(alarmutils.get_cars2)
     material = property(alarmutils.get_material, alarmutils.set_material)
     city = property(alarmutils.get_city, alarmutils.set_city)
+    district = property(alarmutils.get_district, alarmutils.set_district)
+    original = property(alarmutils.get_original, alarmutils.set_original)
     key = property(alarmutils.get_key)
     street = property(alarmutils.get_street, alarmutils.set_street)
     street2 = property(alarmutils.get_street2)
@@ -625,6 +627,12 @@ class Alarm(db.Model):
         alarm.set('priority', '1')  # set normal priority
         alarm.set('alarmtype', alarmtype.name)  # set checker name
         alarm.state = 1
+        
+        #new attributes 2016-10
+        if alarm_fields.has_key('district'):
+            alarm.set('district', alarm_fields['district'][0])
+        if alarm_fields.has_key('original'):
+            alarm.set('original', alarm_fields['original'][0])
 
         # city
         if 'city' in alarm_fields and alarm_fields['city'][1] != 0:
