@@ -180,12 +180,13 @@ class Alarm(db.Model):
             reference = time.time()
         else:
             reference = time.mktime(self.timestamp.timetuple())
+        logger.debug ("updateSchedules reference time = %s" % datetime.datetime.fromtimestamp(reference).__str__() )
 
         # test autoclose
         if self.state == 1 and self.type == 1 and Settings.get('alarms.autoclose', '0') != '0':  # only for open alarms
             closingtime = reference + float(Settings.get('alarms.autoclose', 30)) * 60.0  # minutes -> seconds
             if closingtime > time.time():  # close alarm in future
-                logger.debug("add close schedule in future for alarmid {}".format(self.id))
+                logger.info("add close schedule in future for alarmid %s at %s" % (self.id, datetime.datetime.fromtimestamp(closingtime).__str__() ) )
                 scheduler.add_job(self.changeState, run_date=datetime.datetime.fromtimestamp(closingtime), args=[self.id, 2], name="alarms_close_{}".format(self.id))
             else:  # close alarm now
                 logger.debug("add close schedule now for alarmid {}".format(self.id))
@@ -196,7 +197,7 @@ class Alarm(db.Model):
         if self.state == 2 and Settings.get('alarms.autoarchive', '0') != '0':  # only closed alarms
             archivetime = reference + float(Settings.get('alarms.autoarchive', 12)) * 3600.0  # hours -> seconds
             if archivetime > time.time():  # archive alarm in future
-                logger.debug("add archive schedule in future for alarmid {}".format(self.id))
+                logger.info("add archive schedule in future for alarmid %s at %s" % (self.id, datetime.datetime.fromtimestamp(archivetime).__str__()))
                 scheduler.add_job(self.changeState, run_date=datetime.datetime.fromtimestamp(archivetime), args=[self.id, 3], name="alarms_archive_{}".format(self.id))
             else:  # archive alarm now
                 logger.debug("add archive schedule now for alarmid {}".format(self.id))
@@ -298,13 +299,30 @@ class Alarm(db.Model):
             return []
 
     @staticmethod
+    def closeAllExpiredActiveAlarms():
+        logger.info ("closeAllExpiredActiveAlarms()")
+        rl = []
+        for alarm in Alarm.getActiveAlarms():
+            if alarm.state == 1 and Settings.get('alarms.autoclose', '0') != '0':
+                #and self.type == 1 -> tyoe=1 nur automatisch angelegte Einsaetze; 2 ist manuell                
+                #active
+                closingtime = time.mktime(alarm.timestamp.timetuple())  + float(Settings.get('alarms.autoclose', 30)) * 60.0
+                if closingtime > time.time():
+                    #close it!
+                    logger.info ("found expired alarm id %s -> close it!" % alarm.id)
+                    alarm.state=2
+                    scheduler.add_job(Alarm.changeState, args=[alarm.id, 2], name="alarms_close_{}".format(self.id))
+                    rl.add(alarm.id)
+        return rl
+            
+    @staticmethod
     def changeStates(state):
         """
         Set states of ALL alarms to given state
 
         :param state: state as :py:attr:`emonitor.modules.alarms.alarm.Alarm.ALARMSTATES`
         """
-        for alarm in Alarm.getAlarms(0):
+        for alarm in Alarm.getAlarms(0):            
             Alarm.changeState(alarm.id, state)
 
     def getRouting(self):
@@ -349,7 +367,7 @@ class Alarm(db.Model):
             alarm.addHistory('autochangeState', 'archived')
         db.session.commit()
         
-        logger.debug ("changeState id=%s state=%s" % (id,state))
+        logger.info ("changeState id=%s state=%s" % (id,state))
 
         if state == 1:  # activate alarm
             c = []

@@ -79,6 +79,38 @@ class ExternalapiModule(Module):
                 abort (501)
             abort(404)
 
+        @app.route('/externalApi/rest/alarm', methods=['GET', 'POST'])
+        def rest_alarm_static():
+            if request.method == 'GET':
+                #curl -i -X GET http://192.168.1.145:8080/externalApi/rest//alarm
+                logger.debug("REST GET alarm")
+                aa = Alarm.getActiveAlarms()
+                logger.debug("active alarms %s" % aa)
+                resultmap = {}
+                for a in aa:
+                    resultmap[a.id]=[a.key. a.type, a.state, a.street]
+                return jsonify (alarm=resultmap)
+            elif request.method == 'POST':
+                logger.debug ("REST POST json=%s" % request.json)
+                if not request.json or not 'command' in request.json:
+                    logger.debug("command missing!")
+                    abort(400)
+                command = request.json['command']
+                logger.debug("/externalApi/rest/alarm POST command=%s" % (command))
+                if command == 'close_expired':
+                    #curl -i -XPOST -H "Content-Type: application/json" http://192.168.1.145:8080/externalApi/rest/client -d ' { "clientId" : "0" , "command":"display_off" } '
+                    al = Alarm.closeAllExpiredActiveAlarms()
+                    logger.debug("/externalApi/rest/alarm POST close_expired")
+                    return jsonify({'result': True , 'command':command, 'close_list': al})
+                elif command =='test':
+                    #curl -i -XPOST -H "Content-Type: application/json" http://192.168.1.145:8080/externalApi/rest/alarm -d ' { "clientId" : "1" , "command":"test" } '
+                    logger.debug("/externalApi/rest/alarm POST test command")
+                    return jsonify({'result': True , 'command':command})
+                #not implemented
+                abort (501)
+            abort(404)
+
+
 
     def getAdminContent(self, **params):
         """
