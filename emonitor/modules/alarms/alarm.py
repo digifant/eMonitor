@@ -349,6 +349,9 @@ class Alarm(db.Model):
         """
         from emonitor.extensions import monitorserver
         global LASTALARM
+        
+        logger.info ("changeState id=%s state=%s" % (id,state))
+        
         alarm = Alarm.getAlarms(id=id)
         if not alarm:
             return []
@@ -370,8 +373,6 @@ class Alarm(db.Model):
             alarm.addHistory('autochangeState', 'archived')
         db.session.commit()
         
-        logger.info ("changeState id=%s state=%s" % (id,state))
-
         if state == 1:  # activate alarm
             c = []
             for a in Alarm.getActiveAlarms():  # check cars
@@ -405,6 +406,7 @@ class Alarm(db.Model):
                 return list(set(c))
 
         elif state == 2:  # close alarm
+            logger.info ("close alarm id=%s" % id)
             LASTALARM = 0.0
             alarm.updateSchedules(reference=1)  # use alarm.timestamp + delta
             monitorserver.sendMessage('0', 'reset')  # refresh monitor layout

@@ -8,10 +8,13 @@ from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_REMOVED
 from emonitor.extensions import signal
 from emonitor.socketserver import SocketHandler
 import pytz
+import traceback
+
 
 logging.basicConfig()
 logger = logging.getLogger('apscheduler')
 logger.setLevel(logging.FATAL)
+#logger.setLevel(logging.INFO)
 
 
 class MyScheduler(BackgroundScheduler):
@@ -44,8 +47,8 @@ class MyScheduler(BackgroundScheduler):
 
     @staticmethod
     def myDone(event):
-        if event.job.id:
-            signal.send('scheduler', 'process', jid=event.job.id, state='done')
+        if event.job_id:
+            signal.send('scheduler', 'process', jid=event.job_id, state='done')
 
     def deleteJobForMonitor(self, monitorid):
         """
