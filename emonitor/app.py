@@ -95,7 +95,7 @@ def configure_app(app, config=None):
     try:
         app.config.from_pyfile('emonitor.cfg', silent=False)
     except IOError:
-        print "config file 'emonitor.cfg' not found"
+        print ("config file 'emonitor.cfg' not found")
         sys.exit()
 
     # create missing directories of config

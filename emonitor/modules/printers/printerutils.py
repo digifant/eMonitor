@@ -1,5 +1,11 @@
 from flask import current_app
 from jinja2 import Environment, PackageLoader, meta
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 
 class LayoutParameter:
@@ -67,7 +73,16 @@ class PrintLayout:
         self.module = filename.split('.')[0]
         self.filename = '.'.join(filename.split('.')[1:])
         self.parameters = []
-        env = Environment(loader=PackageLoader('emonitor.modules.{}'.format(self.module), 'templates'))
+        package_name = 'emonitor.modules.%s' % self.module
+        #necessary on linux to prevent "ImportError: Import by filename is not supported." 
+        package_name = package_name.replace ('/templates','')
+        #package_name = 'emonitor.modules.alarms'
+        try:
+            env = Environment(loader=PackageLoader(package_name=package_name, package_path='templates'))
+        except:
+            logger.error (traceback.format_exc())
+            logger.debug('package_name=%s' % package_name)
+            raise
         if not current_app:
             from emonitor import app
             env.filters.update(app.jinja_env.filters)
