@@ -245,17 +245,24 @@ def configure_logging(app):
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
 
-    #file_handler = RotatingFileHandler('%s%s.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
-    file_handler = RotatingFileHandler('%s%s.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
+    file_handler = RotatingFileHandler('%s%s.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=5)
+    #file_handler = RotatingFileHandler('%s%s.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
     logger.addHandler(file_handler)
 
-    #file_handler = RotatingFileHandler('%s%s-error.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=20)
-    file_handler = RotatingFileHandler('%s%s-error.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
+    file_handler = RotatingFileHandler('%s%s-error.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=5)
+    #file_handler = RotatingFileHandler('%s%s-error.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
     file_handler.setFormatter(formatter)
     file_handler.addFilter(MyFilter(logging.ERROR))
     file_handler.setLevel(logging.ERROR)
+    logger.addHandler(file_handler)
+    
+    file_handler = RotatingFileHandler('%s%s-debug.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=5)
+    #file_handler = RotatingFileHandler('%s%s-debug.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
+    file_handler.setFormatter(formatter)
+    file_handler.addFilter(MyFilter(logging.DEBUG))
+    file_handler.setLevel(logging.DEBUG)
     logger.addHandler(file_handler)
 
 
@@ -266,13 +273,29 @@ def configure_hook(app):
 
     @app.teardown_appcontext
     def shutdown_session(exception):
+        logger = logging.getLogger('db.connection::shutdown_session')
+        
+        if not exception:
+            db.session.commit()
+            logger.debug ("no exception -> commit()")
+            
         try:
             db.session.connection().close()
-            db.session.remove()
-            #logger = logging.getLogger('db.connection')
-            #logger.debug(db.engine.pool.status())
+            logger.debug('db.session.connection().close(): %s' % db.engine.pool.status())
         except:
             pass
+        db.session.remove()
+        logger.debug('removed | end | db.engine.pool.status(): %s' % db.engine.pool.status())
+        
+        
+    @app.teardown_request
+    def _manage_transaction(exception):
+        logger = logging.getLogger('db.connection::_manage_transaction')        
+        if not exception:
+            db.session.commit()
+            logger.debug ("no exception -> commit()")
+        db.session.remove()
+        logger.debug('removed | end | db.engine.pool.status(): %s' % db.engine.pool.status())
 
 
 def configure_handlers(app):
