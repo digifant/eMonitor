@@ -3,6 +3,8 @@ import urllib2
 import math
 import re
 import requests
+import traceback
+import logging
 from xml.dom import minidom
 from PIL import Image, ImageDraw
 from cStringIO import StringIO
@@ -54,17 +56,21 @@ def getAlarmMap(alarm, tilepath, **params):
                 items.append(itemtype)
 
     points = []
+    def t2pixel(pt):
+        deltax = pt[0] - t[0]  # tiles delta x
+        deltay = pt[1] - t[1]  # tiles delta y
+
+        x = dimx / 2 * 256 + (deltax * 256) + pt[2]
+        y = dimy / 2 * 256 + (deltay * 256) + pt[3]
+        return x, y
+
     if alarm.housenumber:
-        def t2pixel(pt):
-            deltax = pt[0] - t[0]  # tiles delta x
-            deltay = pt[1] - t[1]  # tiles delta y
-
-            x = dimx / 2 * 256 + (deltax * 256) + pt[2]
-            y = dimy / 2 * 256 + (deltay * 256) + pt[3]
-            return x, y
-
-        for p in alarm.housenumber.points:
+        for p in alarm.housenumber.points:       
             points.append(t2pixel(deg2num(p[0], p[1], zoom)))
+            
+    elif alarm.position['lat'] != 0 and alarm.position['lng'] != 0:
+        points.append(t2pixel(deg2num(alarm.position['lat'], alarm.position['lng'], alarm.zoom)))
+        
 
     for i in range(dimx / 2 * - 1, dimx / 2 + 1):
         for j in range(dimy / 2 * -1, dimy / 2 + 1):
@@ -81,11 +87,18 @@ def getAlarmMap(alarm, tilepath, **params):
                         img_tmp = Image.open("{}{}/{}/{}-{}.png".format(tilepath, item['parameters']['layout'], zoom, t[0] + i, t[1] + j))
                         img_map.paste(img_tmp, (dimx / 2 * 256 + (i * 256), dimy / 2 * 256 + (j * 256)), mask=img_tmp)
 
-    if len(points) > 0:  # draw house
+    if len(points) > 1:  # draw house
         poly = Image.new('RGBA', (dimx * 256, dimy * 256), (255, 255, 255, 0))
         pdraw = ImageDraw.Draw(poly)
         pdraw.polygon(points, fill=(255, 0, 0, 50), outline=(255, 0, 0, 255))
         img_map.paste(poly, mask=poly)
+        
+    #draw marker
+    try:
+        im_marker = Image.open ('./emonitor/frontend/web/img/marker_red.png')
+        img_map.paste(im_marker, box=(points[0][0]-im_marker.size[0]/2, points[0][1]-im_marker.size[1] ), mask=im_marker)
+    except:
+        logging.error (traceback.format_exc())
 
     stream = StringIO()
     img_map.save(stream, format="PNG", dpi=(600, 600))

@@ -1,0 +1,152 @@
+<!--suppress ALL -->
+{% if param_bool_largemap or args['largemap']=='1'  %}
+    {% set contentheight = [391, 584] %}
+{% else %}
+    {% set contentheight = [565, 418] %} 
+{% endif %}
+<html>
+    <head>
+        <style>
+            @page {
+                height: 742px;width: 495px;
+                top:50px;left:50px;right:50px;bottom:50px;
+                @frame content_frame{-pdf-frame-content:content;-pdf-frame-border: 1;top: 80px;left: 50px;right: 150px;height: {{ contentheight[0] }}px;}
+                @frame pages{-pdf-frame-content:pages;-pdf-frame-border: 0;right: 50px;top: 50px;left: 50px; height: 23px;}
+                @frame header_frame {-pdf-frame-content:header_content;-pdf-frame-border: 1;left: 50px;right: 50px;top: 50px;height:23px;}
+                @frame cars_frame {-pdf-frame-content:cars_content;-pdf-frame-border: 1;top:80px;right:50px;width:90px;height:{{ contentheight[0] }}px;}
+                @frame map_frame{-pdf-frame-content:map_content;-pdf-frame-border: 0;left: 50px;width: 693px;height: {{ contentheight[1] }}px;bottom:50px;margin: 0;}
+                /*@frame map_frame{-pdf-frame-content:map_content;-pdf-frame-border: 0;left: 50px;right: 50px;bottom: 50px;height: {# contentheight[1] #}px;margin: 0;}*/
+            }
+
+            @page second_page{
+                height: 742px;width: 495px;
+                @frame content_second{-pdf-frame-border: 1;top: 80px;left: 50px;right: 50px;bottom: 50px;}
+                @frame pages{-pdf-frame-content:pages;-pdf-frame-border: 0;right: 50px;top: 50px;left: 50px;height: 23px;}
+                @frame header_frame{-pdf-frame-content:header_content;-pdf-frame-border: 1;left: 50px;right: 50px;top: 50px;height:23px;}
+                @frame description_route{border: 0;padding:10px;}
+                @frame map_route {-pdf-frame-content:route_content;left: 50px;right: 50px;bottom: 50px;margin: 0;top:450px;}
+            }
+
+            body{font-family: Arial, Helvetica, sans-serif}
+            #content{float:left;}
+            #cars_content{float:left;}
+
+            @media screen{
+               html{left:0;top:0;font-size:10px;position:relative;width:791px;height:742px;
+                    -webkit-transform: scale(0.2);-moz-transform: scale(0.2);-ms-transform: scale(0.2);-o-transform: scale(0.2);transform: scale(0.2);
+                    -webkit-transform-origin: 0 0;-moz-transform-origin: 0 0;-ms-transform-origin: 0 0;-o-transform-origin: 0 0;transform-origin: 0 0;}
+                #pages{position:absolute;top:50px;right:50px;}
+                #header_content{border:1px solid #000;position:absolute;left:50px;right:50px;height:23px;top:50px;}
+                #content {border:1px solid #000;position:absolute;left:50px;right:150px;top:80px;height:{{ contentheight[0] }}px;overflow:hidden;}
+                #cars_content{border:1px solid #000;height:{{ contentheight[0] }}px;width:90px;right:50px;top:80px;position:absolute;}
+                #map_content{position:absolute;left:50px;right:50px;height:{{ contentheight[1] }}px;top:660px;bottom:50px;border:1px solid #000;overflow:hidden;}
+                #content_second{display:none;}
+            }
+            p.car{border:1px solid #000; padding:5px 1px 1px 1px; text-align:center}
+            p.header{padding:5px 5px 0 1px}
+            p.page{padding:5px 5px 0 1px; text-align:right}
+            td.description{border-bottom:1px solid silver;padding-top:2px}
+        </style>
+    </head>
+    <body>
+        <div id="header_content">
+            <p class="header">ALARMFAX: {{ _('template.alarm_sum') }} - {{ alarm.timestamp|datetime }}</p>
+        </div>
+
+        <div id="pages">
+            {%- if alarm.city.id==None %}
+            <p class="page">
+                {{ _('alarms.page') }}
+                <span>
+                    <pdf:pagenumber/>
+                </span> /
+                <span>
+                    <pdf:pagecount/>
+                </span>
+            </p>
+            {%- endif %}
+        </div>
+
+        <div id="content">
+            <h1 style="font-size:3em;padding-top:10px;padding-bottom:0;">{{ alarm.key.category }}{% if alarm.key.category %}: {% endif %}{{  alarm.key.key }}</h1>
+            <h1 style="font-size:3em;padding:0">{{ alarm.district }}: {{ alarm.street.name }} {{ alarm.streetno }}</h1>
+            <h1 style="font-size:2em;padding:0;">{{ alarm.street2.name }}</h1>
+            <div style="border-top:0.1px solid black;color:#ffffff"> _</div>
+
+            {%- if alarm.object %}
+                <p style="font-size:1em;">{{ _('alarms.object') }}:</p>
+                <h3 style="font-size:1.5em;padding-bottom:10px;">{{ alarm.object.name }}</h3>
+                <h3 style="font-size:1.5em;padding-bottom:10px;">Einsatzplan: {{ alarm.get('alarmplan') }}</h3>
+                <div style="border-top:0.1px solid black;color:#ffffff"> _</div>
+            {%- endif %}
+
+            {%- if alarm.original  %}
+                <p style="font-size:1em;">DME Alarmierungstext:</p>
+                <h3 style="font-size:1.5em;padding-bottom:10px;">{{ alarm.original }}</h3>
+            {%- endif %}
+
+            {%- if alarm.remark %}
+                <div style="border-top:0.1px solid black;color:#ffffff"> _</div>
+                <p style="font-size:1em;">{{ _('alarms.remark') }}:</p>
+                <h3 style="font-size:1.5em;padding-bottom:10px;">{{ alarm.remark }}</h3>
+            {%- endif %}
+        </div>
+
+        <div id="cars_content">
+            <p style="text-align:center;padding:5px 0 0 0">{{ _('alarms.cars') }}</p>
+            <div style="margin:10px">
+            {%- for car in alarm.cars1 %}
+                <p class="car">
+                    {{ car.dept.name }}<br/>
+                    {{ car.name }}
+                </p>
+            {%- endfor %}
+            <div style="border-top:0.1px solid black;color:#ffffff"> _</div>
+            {%- for car in alarm.cars2 %}
+                <p class="car">
+                    {{ car.dept.name }}<br/>
+                    {{ car.name }}
+                </p>
+            {%- endfor %}
+            <div style="border-top:0.1px solid black;color:#ffffff"> _</div>
+            {%- for car in alarm.material %}
+                <p class="car">
+                    {{ car.dept.name }}<br/>
+                    {{ car.name }}
+                </p>
+            {%- endfor %}
+            </div>
+        </div>
+
+        <div id="map_content">
+            <img id="map_content_image" style="border:1px solid black;" src="/alarms/export/{{ alarm.id }}-alarmmap{%- if param_bool_largemap or args['largemap']=='1' %}_large{%- endif %}.png" width="691"/>
+        </div>
+
+        {%- if not alarm.city.id or param_bool_allpages or args['allpages']=='1' %}
+
+        <pdf:nexttemplate name="second_page" />
+        <pdf:nextpage />
+
+        <div id="content_second">
+            <div id="description_route">
+                <table style="padding:0 5px;margin:2px" class="description">
+                    {%- for d in alarm.getRouting().description %}
+                    <tr>
+                        <td style="width:150px;" class="description {{ d[0]|safe }}"> <img src="/alarms/inc/{{ d[0]|safe }}.png" width="12"/></td>
+                        <td class="description">{{ d[2]|safe }}</td>
+                        <td style="width:100px;text-align: right" class="description">{{ d[1]|safe }}</td>
+                    </tr>
+                    {%- endfor  %}
+                    <tr>
+                        <td style="padding-top:4px">{{ (alarm.getRouting().traveltime / 60)|int }}:{{ alarm.getRouting().traveltime % 60 }} min.</td>
+                        <td colspan="2" style="text-align: right;padding-top:4px">{{ alarm.getRouting().distance|round(2) }} km</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="route_content">
+                <img src="/alarms/export/{{ alarm.id }}-routemap.png"/>
+            </div>
+        </div>
+        {%- endif %}
+    </body>
+</html>

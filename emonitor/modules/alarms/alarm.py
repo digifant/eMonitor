@@ -441,6 +441,7 @@ class Alarm(db.Model):
         if params['id'] and params:
             alarm = Alarm.getAlarms(id=params['id'])
             logger.debug('load export data for alarm {}, style {}, exportformat {}'.format(params['id'], params['style'], exportformat))
+            logger.debug ('params=%s' % params)
             if not alarm:  # create dummy alarm
                 alarm = Alarm(datetime.datetime.now(), '', 2, 0)
                 alarm.position = dict(lat=Settings.get('defaultLat'), lng=Settings.get('defaultLng'))
