@@ -1,4 +1,5 @@
 import re
+import traceback
 from emonitor.utils import Module
 from emonitor.widget.monitorwidget import MonitorWidget
 from emonitor.extensions import babel, db
@@ -47,8 +48,8 @@ class ParticipationModule(object, Module):
         babel.gettext(u'participation')
 
         #curl -i -X POST -H "Content-Type: application/json" http://feuerwehr/participation/rest/participation -d ' { "telegramId" : "007" , "participation":3 } '
-        @app.route('/participation/rest/participation', methods=['GET', 'POST'])        
-        def rest_participation_static():           
+        @app.route('/participation/rest/participation', methods=['GET', 'POST'])
+        def rest_participation_static():
             if request.method == 'GET':
                 pl = Participation.getParticipation()
                 logger.debug("REST %s" % pl)
@@ -69,7 +70,7 @@ class ParticipationModule(object, Module):
                 if not request.json or ( not 'telegramId' in request.json or not 'participation' in request.json ):
                     logger.debug("aha")
                     abort(400)
-                person = Person.getPersons(qtelegramId=request.json['telegramId'])                
+                person = Person.getPersons(qtelegramId=request.json['telegramId'])
                 if person == None:
                     logger.warn ("no person found with telegramId %s" % request.json['telegramId'])
                     abort(400)
@@ -101,7 +102,36 @@ class ParticipationModule(object, Module):
                 monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
                 return jsonify({'result': True})
             abort(404)
-  
+
+        #curl -i -X POST -H "Content-Type: application/json" http://emonitor:8080/participation/rest/persons -d ' { "alarmId" : 14 } '
+        @app.route('/participation/rest/persons', methods=['POST'])
+        def rest_participation_person_static():
+                if request.method == 'POST':
+                    alarmId = 0
+                    if not request.json or ( not 'alarmId' in request.json ):
+                        logger.debug("alarmId missing!")
+                        abort(400)
+                    try:
+                        alarmId = int(request.json['alarmId'])
+                    except ValueError:
+                        logger.debug (traceback.format_exc())
+                        abort(400)
+                    pl = []
+                    try:
+                        pl3 = Participation.yesPersonList(alarmid=alarmId)
+                        pl6 = Participation.yesPersonList(alarmid=alarmId, min=6)
+                        pl9 = Participation.yesPersonList(alarmid=alarmId, min=9)
+                        pl0 = Participation.yesPersonList(alarmid=alarmId, min=0)
+                    except:
+                        logger.error (traceback.format_exc())
+                    logger.debug("%s" % pl)
+                    #logger.debug("REST")
+                    return jsonify (participation3=pl3, participation6=pl6, participation9=pl9, participation0=pl0)
+                else:
+                    #not implemented
+                    abort (501)
+
+
     def updateAdminSubNavigation(self):
         """
         Add submenu entries for admin area

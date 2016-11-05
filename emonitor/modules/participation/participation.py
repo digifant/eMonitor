@@ -83,6 +83,26 @@ class Participation(db.Model):
         return rs
 
     @staticmethod
+    def yesPersonList(alarmid, min=3):
+        pr = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Alarm.id==alarmid).order_by(Person.platoonLeader.desc(), Person.groupLeader.desc(), Person.asgt.desc())
+        tsL=[]
+        for p in pr:
+            ts = ''
+            logger.debug(p)
+            if p.person.platoonLeader == True:
+                ts = "ZF "
+            elif p.person.groupLeader == True:
+                ts = "GF "
+            if p.person.asgt == True:
+                    ts = ts + "Atemschutz"
+            ps = '%s (%s, %s)' % (ts, p.person.lastname, p.person.firstname)
+            n = '%s, %s' % (p.person.lastname, p.person.firstname)
+            logger.debug(ps)
+            tsL.append( (ts, n))
+        return tsL
+
+
+    @staticmethod
     def yes3min(alarmid):
         return Participation.query.filter_by(_alarm=int(alarmid), participation=3).count()
     @staticmethod

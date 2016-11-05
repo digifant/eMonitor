@@ -33,11 +33,11 @@ DEFAULT_BLUEPRINTS = (
 
 class DEFAULT_CONFIG(object):
     """ default configuration if no .cfg file found """
-    
+
     PROJECT = "eMonitor"
     DEBUG = False
     TESTING = False
-    
+
     #PORT = 8080                                          # default webserver port
     CACHE_TYPE = 'simple'
     CACHE_DEFAULT_TIMEOUT = 60
@@ -84,7 +84,7 @@ def create_app(config=None, app_name=None, blueprints=None):
     configure_handlers(app)
     return app
 
-    
+
 def configure_app(app, config=None):
     """Different ways of configurations."""
 
@@ -154,7 +154,7 @@ def configure_extensions(app):
 
     # printers
     printers.init_app(app)
-    
+
     # flask-login
     login_manager.login_view = 'login.loginform'
     login_manager.login_message = "admin.login.needed"
@@ -169,7 +169,7 @@ def configure_extensions(app):
     # user
     if User.query.count() == 0:
         User.getUsers(1)
-    
+
     @login_manager.user_loader
     def load_user(id):
         return User.getUsers(userid=id)
@@ -257,7 +257,7 @@ def configure_logging(app):
     file_handler.addFilter(MyFilter(logging.ERROR))
     file_handler.setLevel(logging.ERROR)
     logger.addHandler(file_handler)
-    
+
     file_handler = RotatingFileHandler('%s%s-debug.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 100, backupCount=5)
     #file_handler = RotatingFileHandler('%s%s-debug.log' % (app.config.get('PATH_LOG'), app.name), maxBytes=1024 * 1024 * 10, backupCount=0)
     file_handler.setFormatter(formatter)
@@ -274,26 +274,26 @@ def configure_hook(app):
     @app.teardown_appcontext
     def shutdown_session(exception):
         logger = logging.getLogger('db.connection::shutdown_session')
-        
+
         if not exception:
             db.session.commit()
-            logger.debug ("no exception -> commit()")
-            
+            #logger.debug ("no exception -> commit()")
+
         try:
             db.session.connection().close()
-            logger.debug('db.session.connection().close(): %s' % db.engine.pool.status())
+            #logger.debug('db.session.connection().close(): %s' % db.engine.pool.status())
         except:
             pass
         db.session.remove()
         logger.debug('removed | end | db.engine.pool.status(): %s' % db.engine.pool.status())
-        
-        
+
+
     @app.teardown_request
     def _manage_transaction(exception):
-        logger = logging.getLogger('db.connection::_manage_transaction')        
+        logger = logging.getLogger('db.connection::_manage_transaction')
         if not exception:
             db.session.commit()
-            logger.debug ("no exception -> commit()")
+            #logger.debug ("no exception -> commit()")
         db.session.remove()
         logger.debug('removed | end | db.engine.pool.status(): %s' % db.engine.pool.status())
 
