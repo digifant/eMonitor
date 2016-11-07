@@ -75,6 +75,7 @@ class AlarmsModule(Module):
         def alarms_static(filename):
             return send_from_directory("{}/emonitor/modules/alarms/inc/".format(app.config.get('PROJECT_ROOT')), filename)
 
+        #http://emonitor.fritz.box:8080/alarms/export/29-alarm_sum_klb.html?allpages=1&largemap=1
         @app.route('/alarms/export/<path:filename>')  # filename = [id]-[style].pdf
         def export_static(filename):
             filename, extension = os.path.splitext(filename)
