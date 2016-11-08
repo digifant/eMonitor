@@ -175,3 +175,11 @@ class ParticipationWidget(MonitorWidget):
 
     def addParameters(self, **kwargs):
         self.params.update(kwargs)
+
+class ParticipationWidgetList(MonitorWidget):
+    """person participation list widget for alarms"""
+    template = 'widget.participationList.html'
+    size = (5, 5)
+
+    def addParameters(self, **kwargs):
+        self.params.update(kwargs)

@@ -103,6 +103,7 @@ class Alarm(db.Model):
     no = property(alarmutils.getPNo)
     maybe = property(alarmutils.getPMaybe)
     unknown = property(alarmutils.getPUnknown)
+    plist = property(alarmutils.getPList)
 
     def __init__(self, timestamp, key, type, state):
         self.timestamp = timestamp
@@ -304,7 +305,7 @@ class Alarm(db.Model):
         rl = []
         for alarm in Alarm.getActiveAlarms():
             if alarm.state == 1 and Settings.get('alarms.autoclose', '0') != '0':
-                #and self.type == 1 -> tyoe=1 nur automatisch angelegte Einsaetze; 2 ist manuell                
+                #and self.type == 1 -> tyoe=1 nur automatisch angelegte Einsaetze; 2 ist manuell
                 #active
                 closingtime = alarm.timestamp  + datetime.timedelta (minutes=int(Settings.get('alarms.autoclose', 30)))
                 if datetime.datetime.now() > closingtime:
@@ -317,7 +318,7 @@ class Alarm(db.Model):
                     logger.info ("closing time not reached (%s) current time=%s" % (closingtime.isoformat(), datetime.datetime.now().isoformat())  )
 
         return rl
-            
+
     @staticmethod
     def changeStates(state):
         """
@@ -325,7 +326,7 @@ class Alarm(db.Model):
 
         :param state: state as :py:attr:`emonitor.modules.alarms.alarm.Alarm.ALARMSTATES`
         """
-        for alarm in Alarm.getAlarms(0):            
+        for alarm in Alarm.getAlarms(0):
             Alarm.changeState(alarm.id, state)
 
     def getRouting(self):
@@ -349,9 +350,9 @@ class Alarm(db.Model):
         """
         from emonitor.extensions import monitorserver
         global LASTALARM
-        
+
         logger.info ("changeState id=%s state=%s" % (id,state))
-        
+
         alarm = Alarm.getAlarms(id=id)
         if not alarm:
             return []
@@ -372,7 +373,7 @@ class Alarm(db.Model):
         except KeyError:
             alarm.addHistory('autochangeState', 'archived')
         db.session.commit()
-        
+
         if state == 1:  # activate alarm
             c = []
             for a in Alarm.getActiveAlarms():  # check cars
@@ -651,7 +652,7 @@ class Alarm(db.Model):
         alarm.set('priority', '1')  # set normal priority
         alarm.set('alarmtype', alarmtype.name)  # set checker name
         alarm.state = 1
-        
+
         #new attributes 2016-10
         if alarm_fields.has_key('district'):
             alarm.set('district', alarm_fields['district'][0])

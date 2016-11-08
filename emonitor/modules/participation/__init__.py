@@ -7,6 +7,7 @@ from emonitor.modules.participation.participation import Participation
 from emonitor.modules.participation.content_admin import getAdminContent
 from emonitor.modules.participation.content_frontend import getFrontendData
 from emonitor.modules.participation.participation import ParticipationWidget
+from emonitor.modules.participation.participation import ParticipationWidgetList
 from emonitor.modules.persons.persons import Person
 from emonitor.modules.alarms.alarm import Alarm
 from emonitor.extensions import monitorserver
@@ -36,7 +37,7 @@ class ParticipationModule(object, Module):
         # add template path
         app.jinja_loader.searchpath.append("%s/emonitor/modules/participation/templates" % app.config.get('PROJECT_ROOT'))
 
-        self.widgets = [ParticipationWidget('participation')]
+        self.widgets = [ParticipationWidget('participation'), ParticipationWidgetList('participationList')]
 
         # create database tables
         from emonitor.modules.participation.participation import Participation

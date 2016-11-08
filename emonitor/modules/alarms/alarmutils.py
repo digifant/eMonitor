@@ -169,11 +169,11 @@ def get_person(self):  # deliver person string
 
 def get_priority(self):  # deliver priority integer
     return int(self.get('priority', '1'))  # normal
-    
+
 
 def get_remark(self):  # deliver remark string
     return self.get('remark', '')
-    
+
 
 def get_lat(self):  # deliver lat float
     return float(self.get('lat', Settings.get('defaultLat', '0')))
@@ -245,6 +245,15 @@ def getPYes6MinDetailed (self):
 def getPYes9MinDetailed (self):
     from emonitor.modules.participation import Participation
     return Participation.yes9minDetailed(alarmid=self.id )
+
+def getPList (self):
+    from emonitor.modules.participation import Participation
+    p = {}
+    p[3] = Participation.yesPersonList(alarmid=self.id, min=3)
+    p[6] = Participation.yesPersonList(alarmid=self.id, min=6)
+    p[9] = Participation.yesPersonList(alarmid=self.id, min=9)
+    p[0] = Participation.yesPersonList(alarmid=self.id, min=0)
+    return p
 
 def getParticipation (self):
     from emonitor.modules.participation import Participation
