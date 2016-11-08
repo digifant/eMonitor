@@ -1,19 +1,19 @@
 <style>
     {%- if layout.monitor.orientation == 0 %} {# landscape mode #}
     @media screen and (min-resolution:0.75dppx) and  (max-device-width : 1280px) {
-        div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:1px 1px;width:20%;font-size:0.75em;}
+        div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:1px 1px;width:95%;font-size:0.75em;}
         div.label {color:#696969;font-size:12px;position:absolute;top:0;left:2px}
         div#alarm_participation{position:relative;padding-top:1px;}
         div#alarm_participation{padding:10px 2px;}
     }
     @media screen and (min-resolution:0.75dppx) and  (min-device-width : 1281px) {
-        div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:24%;}
+        div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:5px 10px;width:95%;}
         div.label {color:#696969;font-size:12px;position:absolute;top:0;left:20px;}
         div#alarm_participation{position:relative;padding-top:8px;}
         div#alarm_participation{padding:10px 20px;}
     }
     @media screen and (min-resolution:1.5dppx) {
-        div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:1px 1px;width:20%;font-size:0.75em;}
+        div#pyes3min, div#pyes6min, div#pyes9min, div#pno, div#pmaybe, div#punknown {border:3px solid silver;float:left;margin:5px 5px 0 0;text-align:center;padding:1px 1px;width:95%;font-size:0.75em;}
         div.label {color:#696969;font-size:12px;position:absolute;top:0;left:2px;display:none;}
         div#alarm_participation{position:relative;padding-top:1px;}
         div#alarm_participation{padding:2px 2px;}
@@ -24,46 +24,34 @@
     div#alarm_participation{position:relative;padding-top:8px;}
     {%- endif %}
     div#pyes3min {background-color:green; color:black}
-	div#pyes6min {background-color:yellow; color:black}
-	div#pyes9min {background-color:orange; color:black}
+	  div#pyes6min {background-color:yellow; color:black}
+	  div#pyes9min {background-color:orange; color:black}
     div#pno {background-color:red; color:black}
     div#pmaybe {background-color:yellow; color:black}
     div#punknown {background-color:grey; color:black}
     div#alarm_p, {display:block;overflow:hidden;padding:5px 0; position:relative;}
+    td { padding:0 10px 0 10px; }
+}
 </style>
 {%- if alarm %}
 <div id="alarm_participation">
     <!--<div class="label">{{ _('participation') }}:</div> -->
     <div class="label">Rückmeldung Detail:</div>
     <div id="alarm_p">
-      <div id="pyes3min">
-        <table>
+      <table>
         {% for ff in alarm.plist[3] %}
-          <tr><td>3min</td> <td>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
+          <tr style="background-color:green;"><td>3min</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}
-      </table>
-      </div>
-      <div id="pyes6min">
-        <table>
         {% for ff in alarm.plist[6] %}
-          <tr><td>6min</td> <td>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
+          <tr style="background-color:yellow;"><td>6min</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}
-      </table>
-      </div>
-      <div id="pyes9min">
-        <table>
         {% for ff in alarm.plist[9] %}
-          <tr><td>9min</td><td>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
+          <tr style="background-color:orange;"><td>9min</td><td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}
-      </table>
-      </div>
-      <div id="pno">
-        <table>
         {% for ff in alarm.plist[0] %}
-          <tr><td>NEIN</td><td>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
+          <tr style="background-color:red;"><td>NEIN</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}
       </table>
-      </div>
     </div>
 
 </div>
