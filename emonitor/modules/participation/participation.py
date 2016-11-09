@@ -4,8 +4,10 @@ from emonitor.widget.monitorwidget import MonitorWidget
 from emonitor.modules.settings.settings import Settings
 from emonitor.modules.persons.persons import Person
 from emonitor.modules.alarms.alarm import Alarm
+from emonitor.extensions import monitorserver
 import datetime
 import logging
+import traceback
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -88,7 +90,6 @@ class Participation(db.Model):
         tsL=[]
         for p in pr:
             ts = ''
-            logger.debug(p)
             if p.person.platoonLeader == True:
                 ts = "ZF "
             elif p.person.groupLeader == True:
@@ -97,7 +98,7 @@ class Participation(db.Model):
                     ts = ts + "Atemschutz"
             ps = '%s (%s, %s)' % (ts, p.person.lastname, p.person.firstname)
             n = '%s, %s' % (p.person.lastname, p.person.firstname)
-            logger.debug(ps)
+            #logger.debug(ps)
             tsL.append( (ts, n))
         return tsL
 
@@ -150,6 +151,38 @@ class Participation(db.Model):
                 return Participation.query.filter_by(active=1).order_by('alarm', 'participation').all()
             else:
                 return Participation.query.order_by('alarm', 'participation').all()
+
+    @staticmethod
+    def autoYes(alarmid=0, params=[]):
+        autoYesFilterL = [1,2,4,5,6,9,10,14,15]
+        logger.debug ("autoYes alarmid=%s" %alarmid)
+
+        #cpi = Participation.query.filter_by(_alarm=int(alarmid))
+        count = 0;
+        allP = Person.getPersons (onlyactive=True)
+        for p in allP:
+            if p.id in autoYesFilterL:
+                #person should get auto yes
+                if Participation.query.filter_by(_alarm=int(alarmid), _person=p.id).count() == 0:
+                    #no participation info -> auto create yes 3min
+                    try:
+                        part = Participation (alarm=int(alarmid), person=p.id, participation=3)
+                        logger.info("auto participation created for %s,%s: 3min" % (p.lastname, p.firstname))
+                        count = count + 1
+                        db.session.add(part)
+                    except:
+                        logger.error (traceback.format_exc())
+                        db.session.commit()
+                else:
+                    #we already have participation info
+                    #logger.debug ("participation found for %s" % (p.id))
+                    pass
+        if count > 0:
+            db.session.commit()
+            #signal.send('alarm', 'updated', alarmid=alarm_id)
+            monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
+        return count
+
 
     @staticmethod
     def getParticipationDict():

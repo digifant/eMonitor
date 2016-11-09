@@ -1,8 +1,12 @@
 import yaml
+import logging
 from datetime import datetime
 from emonitor.extensions import db
 from sqlalchemy.orm.collections import attribute_mapped_collection
 from emonitor.modules.settings.settings import Settings
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class Person(db.Model):

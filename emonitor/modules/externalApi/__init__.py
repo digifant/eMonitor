@@ -3,6 +3,7 @@ from emonitor.extensions import babel
 from .content_admin import getAdminContent
 from emonitor.extensions import monitorserver
 from emonitor.modules.alarms.alarm import Alarm
+from emonitor.modules.participation import Participation
 from flask import Flask, jsonify, abort, request
 import logging
 import datetime
@@ -110,7 +111,29 @@ class ExternalapiModule(Module):
                 abort (501)
             abort(404)
 
-
+        @app.route('/externalApi/rest/participation', methods=['POST'])
+        def rest_eapi_participation_static():
+            if request.method == 'POST':
+                logger.debug ("REST POST json=%s" % request.json)
+                if not request.json or not 'command' in request.json:
+                    logger.debug("command missing!")
+                    abort(400)
+                command = request.json['command']
+                logger.debug("/externalApi/rest/participation POST command=%s" % (command))
+                if command == 'auto_yes':
+                    #curl -i -XPOST -H "Content-Type: application/json" http://192.168.1.145:8080/externalApi/rest/participation -d ' { "command":"auto_yes" } '
+                    #find active alarm
+                    al = Alarm.getAlarms(state=1)
+                    for a in al:
+                        logger.debug("alarm %s" % a)
+                    try:
+                        alarm = al[0]
+                    except IndexError:
+                        logger.error ("no active alarm found -> create one first!")
+                        abort(400)
+                    count = Participation.autoYes(alarmid=alarm.id)
+                    logger.info ("rest_participation_static() called participation::autoYes for alarmid=%s ; created %s auto yes 3min" % (alarm.id,count))
+                    return jsonify({'result': True , 'command':command, 'count':count})
 
     def getAdminContent(self, **params):
         """
