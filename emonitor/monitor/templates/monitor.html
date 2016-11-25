@@ -42,10 +42,10 @@
                 var second = zeroPad(now.getSeconds(),2);
                 $('#time').html(now.getHours()+":"+minute+":"+second);
             }
-            
+
             timestring();
             setInterval('timestring()', 1000);
-            
+
             var loc = window.location;
             var ws_uri;
             if (loc.protocol == "https:") {
@@ -54,10 +54,20 @@
                 ws_uri = "ws:";
             }
             ws_uri += "//" + loc.host + "/ws";
-            var websocket;            
-          
+            var websocket;
+
             function TimedRefresh(t) {
                 setTimeout("websocket.close(); location.reload(true);", t);
+            }
+
+            function changeParticipationListTable (detailed) {
+                var oldTable = document.getElementById('participationListTable')
+                var newTable = oldTable.cloneNode(true);
+                var l3 = detailed['3'], l6 = detailed['6'], l9 = detailed['9'], l0 = detailed['0'];
+                for (index = 0; index < l3.length; ++index) {
+                  console.log(l3[index]);
+                }
+                oldTable.parentNode.replaceChild(newTable, oldTable);
             }
 
             function ConnectWs () {
@@ -66,16 +76,21 @@
                     websocket = new WebSocket (ws_uri);
                     websocket.onopen    = function (evt) { console.log("Connected to WebSocket server."); document.getElementById("footermesg").innerHTML = "WS connected"; };
                     websocket.onclose   = function (evt) { console.log("Disconnected"); document.getElementById("footermesg").innerHTML = "WS closed";};
-                    websocket.onmessage = function (evt) { 
+                    websocket.onmessage = function (evt) {
                                     console.log('got Message: ' + evt.data);
                                     var json_obj = $.parseJSON(evt.data)
-                                    if (json_obj["command"]== "reload") { 
-                                        console.log('reload command');  
-                                        websocket.close(); location.reload(true); 
-                                    } 
+                                    if (json_obj["command"]== "reload") {
+                                        console.log('reload command');
+                                        websocket.close(); location.reload(true);
+                                    }
+                                    if (json_obj["command"] == "websocket_participation") {
+                                      console.log('websocket_participation command');
+                                      var detailed = json_obj['detailed'];
+                                      //changeParticipationListTable (detailed);
+                                    }
                                   };
                     websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); document.getElementById("footermesg").innerHTML = "WS error occured"; };
-                } 
+                }
             }
 
             ConnectWs ();

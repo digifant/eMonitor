@@ -21,23 +21,23 @@ def getAdminContent(self, **params):
     :return: rendered template as string
     """
     module = request.view_args['module'].split('/')
-    
+
     #logger.debug( 'participationtypes %s' % Settings.getParticipationTypes()[99])
-    
+
     if len(module) < 2:
         module.append(u'1')
-        
+
     if request.method == 'POST':
         if request.form.get('action') == 'createparticipation':  # add
-            # todo: settings Settings.getParticipationTypes()            
+            # todo: settings Settings.getParticipationTypes()
             params.update({'participation': Participation(alarm='',person='',dept=''), 'persons':Person.getPersons(), 'departments': Department.getDepartments(), 'participationtypes': Settings.getParticipationTypes(), 'alarms':Alarm.getAlarms(state=1)})
             return render_template('admin.participation_edit.html', **params)
 
         elif request.form.get('action') == 'updateparticipation':  # save
             if request.form.get('participation_id') != 'None':  # update
                 p = Participation.getParticipation(id=request.form.get('participation_id'))
-                
-            else:  # add 
+
+            else:  # add
                 p = Participation(alarm='',person='',dept='')
                 db.session.add(p)
 
@@ -53,18 +53,30 @@ def getAdminContent(self, **params):
             p.timestamp = datetime.datetime.now()
             db.session.commit()
             signal.send('alarm', 'updated', alarmid=p._alarm)
+            #feed new participation as json data to clients (websocket) for smart display update (avoid reloading of the whole site)
+            try:
+                al = Alarm.getAlarms(state=1)
+                try:
+                    alarm = al[0]
+                except IndexError:
+                    logger.error ("no active alarm found -> create one first!")
+                    abort(400)
+                    plist = alarm.plist
+                    monitorserver.sendMessage ('0', 'websocket_participation', {'command':'websocket_participation', 'detailed':plist})
+            except Exception as e:
+                logger.warn (traceback.format_exc(e))
             monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
-            
+
         elif request.form.get('action') == 'cancel':
             pass
-            
+
         elif request.form.get('action').startswith('editparticipation_'):  # edit
             params.update({'participation': Participation.getParticipation(id=request.form.get('action').split('_')[-1]), 'persons':Person.getPersons(), 'departments': Department.getDepartments(), 'participationtypes': Settings.getParticipationTypes(), 'alarms':Alarm.getAlarms(state=1)})
             return render_template('admin.participation_edit.html', **params)
 
         elif request.form.get('action').startswith('deleteparticipation_'):  # delete
             alarm_id = Participation.getParticipation(id=request.form.get('action').split('_')[-1])._alarm
-            db.session.delete(Participation.getParticipation(id=request.form.get('action').split('_')[-1]))           
+            db.session.delete(Participation.getParticipation(id=request.form.get('action').split('_')[-1]))
             db.session.commit()
             signal.send('alarm', 'updated', alarmid=alarm_id)
             monitorserver.sendMessage('0', 'reset')  # refresh monitor layout

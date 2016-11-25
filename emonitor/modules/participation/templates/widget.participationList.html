@@ -38,7 +38,7 @@
     <!--<div class="label">{{ _('participation') }}:</div> -->
     <div class="label">Rückmeldung Detail:</div>
     <div id="alarm_p">
-      <table>
+      <table id="participationListTable">
         {% for ff in alarm.plist[3] %}
           <tr style="background-color:green;"><td>3min</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}

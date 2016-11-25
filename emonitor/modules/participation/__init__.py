@@ -14,6 +14,7 @@ from emonitor.extensions import monitorserver
 from flask import Flask, jsonify, abort, request
 import logging
 import datetime
+import json
 
 logger = logging.getLogger (__name__)
 logger.setLevel (logging.DEBUG)
@@ -100,6 +101,19 @@ class ParticipationModule(object, Module):
                     db.session.add(p)
                     db.session.commit()
                 #signal.send('alarm', 'updated', alarmid=alarm_id)
+
+                #feed new participation as json data to clients (websocket) for smart display update (avoid reloading of the whole site)
+                try:
+                    al = Alarm.getAlarms(state=1)
+                    try:
+                        alarm = al[0]
+                    except IndexError:
+                        logger.error ("no active alarm found -> create one first!")
+                        abort(400)
+                    plist = alarm.plist
+                    monitorserver.sendMessage ('0', 'websocket_participation', {'command':'websocket_participation', 'detailed':plist})
+                except Exception as e:
+                    logger.warn (traceback.format_exc(e))
                 monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
                 return jsonify({'result': True})
             abort(404)

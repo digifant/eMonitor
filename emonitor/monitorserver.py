@@ -21,7 +21,7 @@ logger.setLevel(logging.ERROR)
 
 
 class MonitorServer():
-    
+
     clients = {'clients': {}, 'time': datetime.datetime.now()}
 
     def __init__(self):
@@ -55,7 +55,7 @@ class MonitorServer():
 
     def sendMessage(self, clientid, operation, **parameters):
         _parameters = urllib.urlencode(parameters)
-        
+
         logger.debug("sendMessage %s %s"  % (clientid, operation))
 
         if len(_parameters) > 0:
@@ -70,6 +70,10 @@ class MonitorServer():
         elif operation == "reset" or operation == "initneed":  # reset monitor
             _parameters = 'http://{}:{}/monitor/{{}}'.format(self.host, self.port)
             SocketHandler.send_message ( json.dumps({'command':'reload'}) )
+        elif operation == 'websocket_participation':
+            if parameters is not None:
+                if 'command' in parameters.keys() and 'detailed' in parameters.keys():
+                    SocketHandler.send_message ( json.dumps(parameters), parameters )
         elif operation == "execute":  # run script
             _parameters = _parameters
         elif operation == "display_off":  # display off
@@ -101,9 +105,9 @@ class MonitorServer():
             res = self.results[_id]
             del self.results[_id]
             return res
-            
+
         return ""
-        
+
     def getClients(self):
         signal.send('monitorserver', 'clientsearchstart', clients=[])
         monitors = Monitor.getMonitors()
@@ -127,7 +131,7 @@ class MonitorServer():
     @staticmethod
     def incomeData(eventname, kwargs):
         pass
-        
+
     @staticmethod
     def handleIncome(eventname, *kwargs):
         pass
@@ -139,10 +143,10 @@ class MonitorServer():
         if eventname == "client_income":
             return kwargs
         params = dict()
-        
+
         try:
             hdl = [hdl for hdl in Eventhandler.getEventhandlers(event=eventname) if hdl.handler == 'emonitor.monitorserver.MonitorServer'][0]
-            
+
             for p in [v[1] for v in hdl.getParameterValues('in') if v[1] != '']:  # required parameters for method
                 if p in kwargs:
                     params[p] = kwargs[p]
@@ -166,7 +170,7 @@ class MonitorServer():
                 except:
                     pass
                 finally: pass
-        
+
         if 'time' not in kwargs.keys():
             kwargs['time'] = []
         kwargs['time'].append('monitorserver: message sent')
@@ -201,7 +205,7 @@ class MonitorServer():
                 # Send data to the multicast group
                 message = self.messages.pop()
                 self.sock.sendto(message, (self.MCAST_ADDR, self.MCAST_PORT))
-                
+
                 # Look for responses from all recipients
                 result = []
                 while True:
@@ -231,20 +235,20 @@ class MonitorServer():
 
 class MonitorLog(db.Model):
     __tablename__ = 'monitorlog'
-    
+
     timestamp = db.Column(db.TIMESTAMP, primary_key=True)
     clientid = db.Column(db.Integer)
     direction = db.Column(db.Integer, default=0)  # 0: ->, 1: <-
     type = db.Column(db.String(16), default='info')
     operation = db.Column(db.Text, default='')
-    
+
     def __init__(self, timestamp, clientid, direction, monitortype, operation):
         self.timestamp = timestamp
         self.clientid = clientid
         self.direction = direction
         self.type = monitortype
         self.operation = operation
-    
+
     @staticmethod
     def addLog(clientid, direction, logtype, operation):
         try:
@@ -253,12 +257,12 @@ class MonitorLog(db.Model):
         except:
             pass
         return None
-        
+
     @staticmethod
     def clearLog():  # not tested
         db.session.delete(MonitorLog)
         db.session.commit()
-        
+
     @staticmethod
     def getMonitorLogs(timestamp=0, clientid=0):
         if timestamp == 0 and clientid == 0:
@@ -267,7 +271,7 @@ class MonitorLog(db.Model):
             return MonitorLog.query.filter_by(clientid=clientid).order_by('timestamp').all()
         else:
             return MonitorLog.query.filter_by(timestamp=timestamp).one()
-            
+
     @staticmethod
     def getLogForClient(clientid):
         return MonitorLog.query.filter((MonitorLog.clientid == clientid) | (MonitorLog.clientid == 0)).order_by(MonitorLog.timestamp.desc())
