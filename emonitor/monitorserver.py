@@ -71,9 +71,12 @@ class MonitorServer():
             _parameters = 'http://{}:{}/monitor/{{}}'.format(self.host, self.port)
             SocketHandler.send_message ( json.dumps({'command':'reload'}) )
         elif operation == 'websocket_participation':
+            logger.debug("sendMessage command websocket_participation")
             if parameters is not None:
                 if 'command' in parameters.keys() and 'detailed' in parameters.keys():
-                    SocketHandler.send_message ( json.dumps(parameters), parameters )
+                    m = {'command':parameters['command'], '0':parameters['detailed'][0], '3':parameters['detailed'][3], '6':parameters['detailed'][6], '9':parameters['detailed'][9]}
+                    #logger.debug("send it param map =%s" % m)
+                    SocketHandler.send_message ( json.dumps (m) )
         elif operation == "execute":  # run script
             _parameters = _parameters
         elif operation == "display_off":  # display off

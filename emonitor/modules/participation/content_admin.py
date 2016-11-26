@@ -10,6 +10,7 @@ from emonitor.modules.monitors.monitorlayout import MonitorLayout
 from emonitor.extensions import monitorserver
 import datetime
 import logging
+import traceback
 
 logger = logging.getLogger (__name__)
 
@@ -61,11 +62,12 @@ def getAdminContent(self, **params):
                 except IndexError:
                     logger.error ("no active alarm found -> create one first!")
                     abort(400)
-                    plist = alarm.plist
-                    monitorserver.sendMessage ('0', 'websocket_participation', {'command':'websocket_participation', 'detailed':plist})
+                plist = alarm.plist
+                logger.info ("sending websocket command")
+                monitorserver.sendMessage (clientid='0', operation='websocket_participation', command='websocket_participation', detailed=plist )
             except Exception as e:
                 logger.warn (traceback.format_exc(e))
-            monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
+            #monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
 
         elif request.form.get('action') == 'cancel':
             pass

@@ -40,13 +40,13 @@
     <div id="alarm_p">
       <table id="participationListTable">
         {% for ff in alarm.plist[3] %}
-          <tr style="background-color:green;"><td>3min</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
+          <tr style="background-color:green;"><td>3 min</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}
         {% for ff in alarm.plist[6] %}
-          <tr style="background-color:yellow;"><td>6min</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
+          <tr style="background-color:yellow;"><td>6 min</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}
         {% for ff in alarm.plist[9] %}
-          <tr style="background-color:orange;"><td>9min</td><td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
+          <tr style="background-color:orange;"><td>9 min</td><td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>
         {% endfor %}
         {% for ff in alarm.plist[0] %}
           <tr style="background-color:red;"><td>NEIN</td> <td align=right>{{ ff[0] }}</td> <td>{{ ff[1] }}</td></tr>

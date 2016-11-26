@@ -111,10 +111,12 @@ class ParticipationModule(object, Module):
                         logger.error ("no active alarm found -> create one first!")
                         abort(400)
                     plist = alarm.plist
-                    monitorserver.sendMessage ('0', 'websocket_participation', {'command':'websocket_participation', 'detailed':plist})
+                    logger.info ("sending websocket command")
+                    monitorserver.sendMessage (clientid='0', operation='websocket_participation', command='websocket_participation', detailed=plist )
                 except Exception as e:
                     logger.warn (traceback.format_exc(e))
-                monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
+                #this would trigger a reload of the whole html site -> unnecessary; we had javascript update of the table
+                #monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
                 return jsonify({'result': True})
             abort(404)
 

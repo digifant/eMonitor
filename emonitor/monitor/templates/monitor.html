@@ -60,12 +60,35 @@
                 setTimeout("websocket.close(); location.reload(true);", t);
             }
 
-            function changeParticipationListTable (detailed) {
+            /**
+            * @param {String} HTML representing a single element
+            * @return {Element}
+            */
+            function htmlToElement(html) {
+              var template = document.createElement('template');
+              template.innerHTML = html;
+              return template.content.firstChild;
+            }
+
+
+            function changeParticipationListTable (in0, in3, in6, in9) {
                 var oldTable = document.getElementById('participationListTable')
-                var newTable = oldTable.cloneNode(true);
-                var l3 = detailed['3'], l6 = detailed['6'], l9 = detailed['9'], l0 = detailed['0'];
-                for (index = 0; index < l3.length; ++index) {
-                  console.log(l3[index]);
+                var newTable = htmlToElement("<table id=\"participationListTable\">");
+                for (index = 0; index < in3.length; ++index) {
+                  //console.log(in3[index]);
+                  newTable.appendChild (htmlToElement("<tr style=\"background-color:green;\"><td>3 min</td> <td align=right>" + in3[index][0] + " </td> <td>" + in3[index][1] + "</td></tr>"));
+                }
+                for (index = 0; index < in6.length; ++index) {
+                  //console.log(in6[index]);
+                  newTable.appendChild (htmlToElement("<tr style=\"background-color:yellow;\"><td>6 min</td> <td align=right>" + in6[index][0] + " </td> <td>" + in6[index][1] + "</td></tr>"));
+                }
+                for (index = 0; index < in9.length; ++index) {
+                  //console.log(in9[index]);
+                  newTable.appendChild (htmlToElement("<tr style=\"background-color:orange;\"><td>9 min</td> <td align=right>" + in9[index][0] + " </td> <td>" + in9[index][1] + "</td></tr>"));
+                }
+                for (index = 0; index < in0.length; ++index) {
+                  //console.log(in0[index]);
+                  newTable.appendChild (htmlToElement("<tr style=\"background-color:red;\"><td>NEIN</td> <td align=right>" + in0[index][0] + " </td> <td>" + in0[index][1] + "</td></tr>"));
                 }
                 oldTable.parentNode.replaceChild(newTable, oldTable);
             }
@@ -85,8 +108,12 @@
                                     }
                                     if (json_obj["command"] == "websocket_participation") {
                                       console.log('websocket_participation command');
-                                      var detailed = json_obj['detailed'];
-                                      //changeParticipationListTable (detailed);
+                                      //got Message: {"9": [["Skills", "Name"], "0": [], "3": [], "command": "websocket_participation", "6": []}
+                                      var in3 = json_obj['3'];
+                                      var in6 = json_obj['6'];
+                                      var in9 = json_obj['9'];
+                                      var in0 = json_obj['0'];
+                                      changeParticipationListTable (in0, in3, in6, in9);
                                     }
                                   };
                     websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); document.getElementById("footermesg").innerHTML = "WS error occured"; };
