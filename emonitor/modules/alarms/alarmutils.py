@@ -246,6 +246,15 @@ def getPYes9MinDetailed (self):
     from emonitor.modules.participation import Participation
     return Participation.yes9minDetailed(alarmid=self.id )
 
+def getPSummary (self):
+    from emonitor.modules.participation import Participation
+    p = {}
+    p[3] = Participation.yesXminDetailed(alarmid=self.id, min=3)
+    p[6] = Participation.yesXminDetailed(alarmid=self.id, min=6)
+    p[9] = Participation.yesXminDetailed(alarmid=self.id, min=9)
+    p[0] = Participation.yesXminDetailed(alarmid=self.id, min=0)
+    return p
+
 def getPList (self):
     from emonitor.modules.participation import Participation
     p = {}

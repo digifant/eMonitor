@@ -70,9 +70,31 @@
               return template.content.firstChild;
             }
 
+            function changeParticipationSummary (in0, in3, in6, in9) {
+              console.log('function changeParticipationSummary');
+              var div3 = document.getElementById('pyes3min');
+              if ( div3 != null ) {
+                div3.textContent = in3;
+              }
+              var div6 = document.getElementById('pyes6min');
+              if ( div6 != null ) {
+                div6.textContent = in6;
+              }
+              var div9 = document.getElementById('pyes9min');
+              if ( div9 != null ) {
+                div9.textContent = in9;
+              }
+              var div0 = document.getElementById('pno');
+              if ( div0 != null ) {
+                div0.textContent = in0;
+              }
+            }
 
             function changeParticipationListTable (in0, in3, in6, in9) {
                 var oldTable = document.getElementById('participationListTable')
+                if (oldTable == null) {
+                  return;
+                }
                 var newTable = htmlToElement("<table id=\"participationListTable\">");
                 for (index = 0; index < in3.length; ++index) {
                   //console.log(in3[index]);
@@ -100,20 +122,28 @@
                     websocket.onopen    = function (evt) { console.log("Connected to WebSocket server."); document.getElementById("footermesg").innerHTML = "WS connected"; };
                     websocket.onclose   = function (evt) { console.log("Disconnected"); document.getElementById("footermesg").innerHTML = "WS closed";};
                     websocket.onmessage = function (evt) {
-                                    console.log('got Message: ' + evt.data);
+                                    //console.log('got Message: ' + evt.data);
                                     var json_obj = $.parseJSON(evt.data)
                                     if (json_obj["command"]== "reload") {
                                         console.log('reload command');
                                         websocket.close(); location.reload(true);
                                     }
                                     if (json_obj["command"] == "websocket_participation") {
-                                      console.log('websocket_participation command');
+                                      //console.log('websocket_participation command');
                                       //got Message: {"9": [["Skills", "Name"], "0": [], "3": [], "command": "websocket_participation", "6": []}
                                       var in3 = json_obj['3'];
                                       var in6 = json_obj['6'];
                                       var in9 = json_obj['9'];
                                       var in0 = json_obj['0'];
                                       changeParticipationListTable (in0, in3, in6, in9);
+                                    }
+                                    if (json_obj["command"] == "websocket_participation_summary") {
+                                      //console.log('websocket_participation_summary command');
+                                      var in3 = json_obj['3'];
+                                      var in6 = json_obj['6'];
+                                      var in9 = json_obj['9'];
+                                      var in0 = json_obj['0'];
+                                      changeParticipationSummary (in0, in3, in6, in9);
                                     }
                                   };
                     websocket.onerror   = function (evt) { console.log('Error occured: ' + evt.data); document.getElementById("footermesg").innerHTML = "WS error occured"; };

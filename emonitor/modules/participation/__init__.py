@@ -111,8 +111,10 @@ class ParticipationModule(object, Module):
                         logger.error ("no active alarm found -> create one first!")
                         abort(400)
                     plist = alarm.plist
+                    psummary = alarm.psummary
                     logger.info ("sending websocket command")
                     monitorserver.sendMessage (clientid='0', operation='websocket_participation', command='websocket_participation', detailed=plist )
+                    monitorserver.sendMessage (clientid='0', operation='websocket_participation_summary', command='websocket_participation_summary', detailed=psummary )
                 except Exception as e:
                     logger.warn (traceback.format_exc(e))
                 #this would trigger a reload of the whole html site -> unnecessary; we had javascript update of the table

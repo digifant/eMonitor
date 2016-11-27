@@ -77,6 +77,13 @@ class MonitorServer():
                     m = {'command':parameters['command'], '0':parameters['detailed'][0], '3':parameters['detailed'][3], '6':parameters['detailed'][6], '9':parameters['detailed'][9]}
                     #logger.debug("send it param map =%s" % m)
                     SocketHandler.send_message ( json.dumps (m) )
+        elif operation == 'websocket_participation_summary':
+            logger.debug("sendMessage command websocket_participation_summary")
+            if parameters is not None:
+                if 'command' in parameters.keys() and 'detailed' in parameters.keys():
+                    m = {'command':parameters['command'], '0':parameters['detailed'][0], '3':parameters['detailed'][3], '6':parameters['detailed'][6], '9':parameters['detailed'][9]}
+                    #logger.debug("send it param map =%s" % m)
+                    SocketHandler.send_message ( json.dumps (m) )
         elif operation == "execute":  # run script
             _parameters = _parameters
         elif operation == "display_off":  # display off

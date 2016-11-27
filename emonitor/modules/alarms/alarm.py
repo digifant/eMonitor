@@ -104,6 +104,7 @@ class Alarm(db.Model):
     maybe = property(alarmutils.getPMaybe)
     unknown = property(alarmutils.getPUnknown)
     plist = property(alarmutils.getPList)
+    psummary = property(alarmutils.getPSummary)
 
     def __init__(self, timestamp, key, type, state):
         self.timestamp = timestamp
