@@ -506,7 +506,7 @@ class Alarm(db.Model):
                 params = params.replace (' ', '+')
                 params = params.replace ('<', '&lt;')
                 params = params.replace ('>', '&gt;')
-                logger.debug ("OSM nominatim query: %s?%s" % (url,params))
+                logger.info ("OSM nominatim query: %s?%s" % (url,params))
                 r = requests.get('{}?{}'.format(url, params), timeout=3)
                 #import pdb; pdb.set_trace()
                 _position = dict(lat=r.json()[0]['lat'], lng=r.json()[0]['lon'])
@@ -524,7 +524,7 @@ class Alarm(db.Model):
             city = alarm_fields['city'][0].encode('utf-8')
             address = alarm_fields['address'][0].encode('utf-8')
         if USE_MAPS_GEOCODING_API == 1:
-            if Settings.get('google-api-key', '') == '':
+            if Settings.get('GOOGLE-API-key', '') == '':
                 logger.warn ('google-api-key not set in table settings!')
                 return _position
             try:
@@ -535,12 +535,12 @@ class Alarm(db.Model):
                     params = '?address={} {}, {}'.format (address, streetno.split()[0], city)
                 else:
                     params = '?address=%s, %s' % (address, city)
-                params = params + '?key=%s' % Settings.get('google-api-key', '')
+                params = params + '&key=%s' % Settings.get('google-api-key', '')
                 params = params.replace (' ', '+')
                 params = params.replace ('<', '&lt;')
                 params = params.replace ('>', '&gt;')
                 url = url + params
-                logger.debug ("google maps geocoding api query: %s" % (url))
+                logger.info ("google maps geocoding api query: %s" % (url))
                 #import pdb; pdb.set_trace()
                 r = requests.get(url, timeout=3)
                 logger.debug('response: %s' % r)

@@ -154,7 +154,7 @@ class Participation(db.Model):
 
     @staticmethod
     def autoYes(alarmid=0, params=[]):
-        autoYesFilterL = [1,2,4,5,6,9,10,14,15]
+        autoYesFilterL = [1,2,4,5,6,10,15]
         logger.debug ("autoYes alarmid=%s" %alarmid)
 
         #cpi = Participation.query.filter_by(_alarm=int(alarmid))
@@ -179,8 +179,13 @@ class Participation(db.Model):
                     pass
         if count > 0:
             db.session.commit()
-            #signal.send('alarm', 'updated', alarmid=alarm_id)
-            monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
+            ##signal.send('alarm', 'updated', alarmid=alarm_id)
+            #monitorserver.sendMessage('0', 'reset')  # refresh monitor layout
+            plist = alarm.plist
+            psummary = alarm.psummary
+            logger.info ("sending websocket command")
+            monitorserver.sendMessage (clientid='0', operation='websocket_participation', command='websocket_participation', detailed=plist )
+            monitorserver.sendMessage (clientid='0', operation='websocket_participation_summary', command='websocket_participation_summary', detailed=psummary )
         return count
 
 
