@@ -59,19 +59,9 @@
             function TimedRefresh(t) {
                 setTimeout("websocket.close(); location.reload(true);", t);
             }
-
-            /**
-            * @param {String} HTML representing a single element
-            * @return {Element}
-            */
-            function htmlToElement(html) {
-              var template = document.createElement('template');
-              template.innerHTML = html;
-              return template.content.firstChild;
-            }
-
+            
             function changeParticipationSummary (in0, in3, in6, in9) {
-              console.log('function changeParticipationSummary');
+              //console.log('function changeParticipationSummary');
               var div3 = document.getElementById('pyes3min');
               if ( div3 != null ) {
                 div3.textContent = in3;
@@ -90,31 +80,33 @@
               }
             }
 
-            function changeParticipationListTable (in0, in3, in6, in9) {
+            function changeParticipationListTable2 (in0, in3, in6, in9) {
+                //console.log('function changeParticipationListTable2');
                 var oldTable = document.getElementById('participationListTable')
                 if (oldTable == null) {
                   return;
                 }
-                var newTable = htmlToElement("<table id=\"participationListTable\">");
+                var newTableStr = ("<table id=\"participationListTable\">");
                 for (index = 0; index < in3.length; ++index) {
                   //console.log(in3[index]);
-                  newTable.appendChild (htmlToElement("<tr style=\"background-color:green;\"><td>3 min</td> <td align=right>" + in3[index][0] + " </td> <td>" + in3[index][1] + "</td></tr>"));
+                  newTableStr += ("<tr style=\"background-color:green;\"><td>3 min</td> <td align=right>" + in3[index][0] + " </td> <td>" + in3[index][1] + "</td></tr>");
                 }
                 for (index = 0; index < in6.length; ++index) {
                   //console.log(in6[index]);
-                  newTable.appendChild (htmlToElement("<tr style=\"background-color:yellow;\"><td>6 min</td> <td align=right>" + in6[index][0] + " </td> <td>" + in6[index][1] + "</td></tr>"));
+                  newTableStr += ("<tr style=\"background-color:yellow;\"><td>6 min</td> <td align=right>" + in6[index][0] + " </td> <td>" + in6[index][1] + "</td></tr>");
                 }
                 for (index = 0; index < in9.length; ++index) {
                   //console.log(in9[index]);
-                  newTable.appendChild (htmlToElement("<tr style=\"background-color:orange;\"><td>9 min</td> <td align=right>" + in9[index][0] + " </td> <td>" + in9[index][1] + "</td></tr>"));
+                  newTableStr += ("<tr style=\"background-color:orange;\"><td>9 min</td> <td align=right>" + in9[index][0] + " </td> <td>" + in9[index][1] + "</td></tr>");
                 }
                 for (index = 0; index < in0.length; ++index) {
                   //console.log(in0[index]);
-                  newTable.appendChild (htmlToElement("<tr style=\"background-color:red;\"><td>NEIN</td> <td align=right>" + in0[index][0] + " </td> <td>" + in0[index][1] + "</td></tr>"));
+                  newTableStr += ("<tr style=\"background-color:red;\"><td>NEIN</td> <td align=right>" + in0[index][0] + " </td> <td>" + in0[index][1] + "</td></tr>");
                 }
-                oldTable.parentNode.replaceChild(newTable, oldTable);
+                
+                $( "#participationListTable" ).replaceWith(newTableStr);
             }
-
+                    
             function ConnectWs () {
                 if ( (websocket == undefined) || (websocket.readyState > 2)  ) {
                     console.log (websocket);
@@ -135,7 +127,7 @@
                                       var in6 = json_obj['6'];
                                       var in9 = json_obj['9'];
                                       var in0 = json_obj['0'];
-                                      changeParticipationListTable (in0, in3, in6, in9);
+                                      changeParticipationListTable2 (in0, in3, in6, in9);
                                     }
                                     if (json_obj["command"] == "websocket_participation_summary") {
                                       //console.log('websocket_participation_summary command');
