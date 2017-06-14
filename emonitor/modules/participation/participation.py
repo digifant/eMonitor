@@ -86,7 +86,40 @@ class Participation(db.Model):
 
     @staticmethod
     def yesPersonList(alarmid, min=3):
-        pr = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Alarm.id==alarmid).order_by(Person.platoonLeader.desc(), Person.groupLeader.desc(), Person.asgt.desc())
+        try:
+            prAll = Participation.query.join(Participation.person).join(Participation.alarm).filter (Alarm.id==alarmid).order_by(Person.platoonLeader.desc(), Person.groupLeader.desc(), Person.asgt.desc())
+	    prNew = []
+            for p in prAll:
+               if p.participation==min:
+                   prNew.append (p)
+
+            for p in prAll:
+                for p2 in prAll:
+                    if p.person.id == p2.person.id and p.timestamp != p2.timestamp:
+                        #this should not happen!
+                        logger.warn ("cleanup participation info needed (dublette) %s" % p.person.lastname)
+                        if p.timestamp > p2.timestamp:
+                            try:
+                                logger.warn ("remove participation info (dublette) %s %s %s" % (p2.person.lastname, p2.timestamp, p2.participation))
+                                prNew.remove (p2)
+                            except:
+                                pass
+                        else:
+                            try:
+                                logger.warn ("remove participation info (dublette) %s %s %s" % (p.person.lastname, p.timestamp, p.participation))
+                                prNew.remove (p)
+                            except:
+                                pass
+                        break
+        except Exception as e:
+            logger.error(traceback.format_exc())
+
+        #ohne dupletten test
+        #pr = Participation.query.filter_by(participation=min).join(Participation.person).join(Participation.alarm).filter (Alarm.id==alarmid).order_by(Person.platoonLeader.desc(), Person.groupLeader.desc(), Person.asgt.desc())
+
+        #hack dupletten test
+        pr = prNew
+
         tsL=[]
         for p in pr:
             ts = ''

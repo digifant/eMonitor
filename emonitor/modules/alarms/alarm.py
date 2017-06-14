@@ -208,13 +208,13 @@ class Alarm(db.Model):
         # test screenshot
         if self.state == 1:
             logger.debug("add screenshot schedule in future for alarmid {}".format(self.id))
-            scheduler.add_job(self.screenShot, run_date=datetime.datetime.now() + datetime.timedelta (seconds=10), args=[self.id], name="alarms_screenshot_{}".format(self.id))
+            scheduler.add_job(self.screenShot, run_date=datetime.datetime.now() + datetime.timedelta (seconds=60), args=[self.id], name="alarms_screenshot_{}".format(self.id))
 
         # test autoYes
         if self.state == 1:
             logger.debug("add autoYes schedule in future for alarmid {}".format(self.id))
             from emonitor.modules.participation import Participation
-            scheduler.add_job(Participation.autoYes, run_date=datetime.datetime.now() + datetime.timedelta (seconds=60), args=[self.id], name="alarms_autoYes_{}".format(self.id))
+            scheduler.add_job(Participation.autoYes, run_date=datetime.datetime.now() + datetime.timedelta (seconds=5), args=[self.id], name="alarms_autoYes_{}".format(self.id))
 
     def getDepartment(self):
         if self.street.city:
@@ -971,7 +971,7 @@ class Alarm(db.Model):
     @staticmethod
     def screenShot (id):
         url = 'http://localhost/monitor/3'
-        logger.debug('screenshot (alarm id=%s): %s' % (id,url))
+        logger.info('will call screenshot script (alarm id=%s): %s' % (id,url))
         try:
             screenshot_cmd = '/home/bofh/phantomjs/screenshot-and-telegram.py'
 	    p = subprocess.Popen(screenshot_cmd, preexec_fn=os.setsid)
