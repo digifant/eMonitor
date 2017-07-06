@@ -214,7 +214,8 @@ class Alarm(db.Model):
         if self.state == 1:
             logger.debug("add autoYes schedule in future for alarmid {}".format(self.id))
             from emonitor.modules.participation import Participation
-            scheduler.add_job(Participation.autoYes, run_date=datetime.datetime.now() + datetime.timedelta (seconds=5), args=[self.id], name="alarms_autoYes_{}".format(self.id))
+            scheduler.add_job(Participation.autoYes, run_date=datetime.datetime.now() + datetime.timedelta (milliseconds=100), args=[self.id], name="alarms_autoYes_{}".format(self.id))
+            #scheduler.add_job(Participation.autoYes, run_date=datetime.datetime.now() + datetime.timedelta (seconds=5), args=[self.id], name="alarms_autoYes_{}".format(self.id))
 
     def getDepartment(self):
         if self.street.city:

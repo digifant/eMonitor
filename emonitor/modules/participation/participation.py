@@ -187,7 +187,7 @@ class Participation(db.Model):
 
     @staticmethod
     def autoYes(alarmid=0, params=[]):
-        autoYesFilterL = [1,2,4,5,6,10,15]
+        autoYesFilterL = [1,2,4,10]
         logger.debug ("autoYes alarmid=%s" %alarmid)
 
         #cpi = Participation.query.filter_by(_alarm=int(alarmid))

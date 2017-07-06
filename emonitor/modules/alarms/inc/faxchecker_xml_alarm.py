@@ -64,7 +64,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             alarmtype = params['alarmtype']
         else:
             if 'alarmtype' in XmlAlarmFaxChecker().fields:
-                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]                
+                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]
 
         if 'options' in params:
             options = params['options']
@@ -186,10 +186,13 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             alarmtype = params['alarmtype']
         else:
             if 'alarmtype' in XmlAlarmFaxChecker().fields:
-                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]                
+                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]
 
-        if _str.strip() == '':
-            XmlAlarmFaxChecker().fields[fieldname] = ('', 0)
+        try:
+            if _str.strip() == '':
+                XmlAlarmFaxChecker().fields[fieldname] = ('', 0)
+        except:
+            logger.error (traceback.format_exc())
 
         cities = City.getCities()
         for city in cities:  # test first word with defined subcities of cities
@@ -239,7 +242,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             alarmtype = params['alarmtype']
         else:
             if 'alarmtype' in XmlAlarmFaxChecker().fields:
-                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]                
+                alarmtype = XmlAlarmFaxChecker().fields['alarmtype'][0]
 
         if 'options' in params:
             options = params['options']
@@ -303,7 +306,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
                 # z.B. 'Brand 3' = id
                 keys[k.key] = k.id
 
-            repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1, cutoff=0.8)  # default cutoff 0.6            
+            repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1, cutoff=0.8)  # default cutoff 0.6
             if len(repl) == 0:
                 repl = difflib.get_close_matches(_str.strip(), keys.keys(), 1)  # try with default cutoff
             if len(repl) > 0:
@@ -329,7 +332,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             XmlAlarmFaxChecker().logger.info(u'key: "{}" not found in alarmkeys'.format(_str))
             XmlAlarmFaxChecker().fields[fieldname] = (_str, 0)
         except:
-            
+
             XmlAlarmFaxChecker().logger.error(u'key: error in key evaluation traceback\n%s' % traceback.format_exc())
         finally:
             return
@@ -357,12 +360,12 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
 
             XmlAlarmFaxChecker().fields[fieldname] = (_str, 0)
         return
-    
-    
+
+
     @staticmethod
     #wird mit key als fieldname aufgerufen!
     def evalObjectBMA (fieldname, **params):
-        logger.debug("evalObjectBMA")        
+        logger.debug("evalObjectBMA")
         _str = XmlAlarmFaxChecker().fields[fieldname][0].replace('\xc3\x9c'.decode('utf-8'), u'0')
         objects = AlarmObject.getAlarmObjects()
         #import pdb; pdb.set_trace()
@@ -378,7 +381,7 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
         #XmlAlarmFaxChecker().fields[u'object'] = (_str, 0)
         logger.debug("KEIN Alarmobjekt gefunden!")
         return
-                
+
 
 
     def buildAlarmFromText(self, alarmtype, rawtext):
@@ -454,12 +457,12 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             except AttributeError:
                 pass
             self.fields['district'] = { 0:ortsteil , 1:0 }
-            
+
             gemeinde = ''
             try:
                 gemeinde = root.find('GEMEINDE').text
             except AttributeError:
-                pass            
+                pass
             self.fields['city'] = { 0:gemeinde , 1:1 }
 
             landkreis = ''

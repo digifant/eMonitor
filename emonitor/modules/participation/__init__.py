@@ -77,14 +77,16 @@ class ParticipationModule(object, Module):
                     logger.warn ("no person found with telegramId %s" % request.json['telegramId'])
                     abort(400)
                 logger.debug("person with telegramId %s found: %s, %s" % (request.json['telegramId'], person.lastname, person.firstname))
-                part = Participation.getParticipation(qtelegramId=request.json['telegramId'])
+                part = Participation.getParticipation(qtelegramId=request.json['telegramId']).order_by('participation.timestamp desc')
                 if part.count()>0:
                     #update
-                    for p in part:
-                        logger.info("active participation: %s updated to %s" % (p,request.json['participation']))
-                        p.participation = request.json['participation']
-                        p.timestamp = datetime.datetime.now()
-                        db.session.commit()
+                    #2017-07 update only newest participation entry
+                    p = part[0]
+                    #for p in part:
+                    logger.info("active participation: %s updated to %s" % (p,request.json['participation']))
+                    p.participation = request.json['participation']
+                    p.timestamp = datetime.datetime.now()
+                    db.session.commit()
                 else:
                     #create new
                     #find active alarm
