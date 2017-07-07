@@ -26,8 +26,7 @@ class Messages(db.Model):
     startdate = db.Column(db.DATETIME)
     enddate = db.Column(db.DATETIME)
     state = db.Column(db.Integer)
-    #_monitors = db.Column('monitors', db.String(32))
-    monitors = db.Column('monitors', db.String(32), key="monitors")
+    _monitors = db.Column('monitors', db.String(32), key="monitors")
     _type = db.Column('type', db.String(32))
     _attributes = db.Column('attributes', db.TEXT)
 
@@ -177,13 +176,13 @@ class Messages(db.Model):
             return Messages.query.filter(Messages.state > 0).filter(Messages.startdate <= datetime.datetime.now()).filter(Messages.enddate >= datetime.datetime.now()).order_by(Messages.startdate.asc()).all()
         except OperationalError:
             return []
-        except AttributeError:            
+        except AttributeError:
             logger.warning ("something overwrites global datetime with null (None) object!")
             logger.warning ("however I dont find such a line in the code; maybe its on one of the python modules?")
             logger.warning ("hotfix: return empty list!")
             logger.warning (traceback.format_exc())
             return []
-            
+
 
     @staticmethod
     def initMessageTrigger():
