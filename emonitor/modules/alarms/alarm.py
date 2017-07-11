@@ -32,12 +32,19 @@ from emonitor.extensions import babel, db, events, scheduler, signal
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
+#logger.setLevel(logging.DEBUG)
 
 USE_MAPS_GEOCODING_API = 1
 USE_NOMINATIM = 1
 LASTALARM = 0.0  # timestamp ini millies
 
-
+import pdb
+#from pdb import break_on_setattr
+#only on pdbpp https://pypi.python.org/pypi/pdbpp/
+#pip install pdbpp
+#@break_on_setattr('_position')
+#@break_on_setattr('position')
+#@break_on_setattr('street')
 class Alarm(db.Model):
     """Alarm class"""
     __tablename__ = 'alarms'
@@ -514,6 +521,7 @@ class Alarm(db.Model):
             except:
                 import traceback
                 logger.error(u'osm nominatim query errror {}\n'.format(traceback.format_exc()))
+            logger.info (u'osm nominatim query result: %s' % _position)
         return _position
 
     @staticmethod
@@ -555,7 +563,7 @@ class Alarm(db.Model):
                         res = r.json()['results'][0] #use first result
                         res['geometry']['location']['lat']
                         _position = dict(lat=res['geometry']['location']['lat'], lng=res['geometry']['location']['lng'])
-                        logger.debug('google geocoding query successfull: %s' % res['geometry']['location'])
+                        logger.info('google geocoding query successfull: %s' % res['geometry']['location'])
                     except ValueError:
                         logger.error ('invalid json. raw response=%s\n%s' % (r.text, traceback.format_exec()))
 
@@ -577,7 +585,7 @@ class Alarm(db.Model):
         global LASTALARM
 
 
-        logger.debug ("handleEvent %s kwargs=%s" % (eventname, kwargs))
+        logger.info ("handleEvent %s kwargs=%s" % (eventname, kwargs))
 
         alarm_fields = dict()
         stime = time.time()
@@ -634,6 +642,7 @@ class Alarm(db.Model):
         if USE_NOMINATIM == 1:
             try:
                 _position = alarm.queryOsmNominatim (alarm_fields=alarm_fields)
+                logger.info('_position after OsmNominatimQuery: %s ' % _position)
             except:
                 pass
 
@@ -725,6 +734,7 @@ class Alarm(db.Model):
                                 alarm.set('marker', '1')
                         else:
                             #new: set street coordinates
+                            #pdb.set_trace()
                             if _s.lat != u'0.0' and _s.lng != u'0.0':
                                 alarm.position = dict(lat=_s.lat, lng=_s.lng, zoom=_s.zoom)
                                 alarm.set('marker', '1')

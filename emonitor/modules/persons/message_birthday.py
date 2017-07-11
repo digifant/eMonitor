@@ -60,7 +60,11 @@ class BirthdayWidget(MonitorWidget):
         if 'message' in kwargs:
             content = kwargs['message'].get('content')
             template = kwargs['message'].get('template')
-            n = int(kwargs['message'].get('number'))
+            try:
+                n = int(kwargs['message'].get('number'))
+            except TypeError:
+                n = int(Settings.get('messages.birthday.number', 5))
+
             orientation = kwargs['message'].get('orientation')
         else:
             content = Settings.get('messages.birthday.content')
