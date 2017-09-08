@@ -44,6 +44,8 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
     sections[u'Stra\xdfe'] = (u'address', u'evalStreet')
     sections[u'Hinweis'] = (u'remark', u'')
     sections[u'Objekt'] = (u'key', u'evalObjectBMA')
+    #no material given in xml
+    #sections[u'Geforderte Einsatzmittel bzw. Ausr\xfcstung'] = (u'material', u'evalMaterial')
     keywords = [u'<Alarm']
     #fuer Stichworte / keys (siehe alarm.py line 524
     translations = AlarmFaxChecker.translations + [u'_bab_', u'_train_', u'_street_', u'_default_city_', u'_interchange_', u'_kilometer_', u'_train_identifier_']
@@ -495,6 +497,8 @@ class XmlAlarmFaxChecker(AlarmFaxChecker):
             self.evalStreet('address')
             #TODO evalObject TEST
             self.evalObjectBMA  ('key_untouched')
+            #default value, we dont have this in our xml
+            self.fields['material'] = ('0','0')
 
         for k in XmlAlarmFaxChecker().fields:
             try:
